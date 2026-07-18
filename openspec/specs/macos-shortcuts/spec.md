@@ -1,53 +1,53 @@
-### Requirement: macOS Accessibility permission detection
+### 需求：macOS 辅助功能权限检测
 
-On macOS, the system SHALL expose an IPC command `accessibility_trusted` that returns a boolean indicating whether the application has been granted Accessibility access by the operating system. On all other platforms the command SHALL return `true` unconditionally.
+在 macOS 上，系统应当暴露一个 IPC 命令 `accessibility_trusted`，返回布尔值表示应用是否已被操作系统授予辅助功能访问权限。在所有其他平台上，该命令应当无条件返回 `true`。
 
-#### Scenario: Accessibility not granted on macOS
+#### 场景：macOS 上未授予辅助功能
 
-- **WHEN** the app has not been granted Accessibility access in macOS System Settings
-- **THEN** `accessibility_trusted` SHALL return `false`
+- **当** 应用未在 macOS 系统设置中被授予辅助功能访问权限
+- **则** `accessibility_trusted` 应当返回 `false`
 
-#### Scenario: Accessibility granted on macOS
+#### 场景：macOS 上已授予辅助功能
 
-- **WHEN** the app has been granted Accessibility access in macOS System Settings
-- **THEN** `accessibility_trusted` SHALL return `true`
+- **当** 应用已在 macOS 系统设置中被授予辅助功能访问权限
+- **则** `accessibility_trusted` 应当返回 `true`
 
-#### Scenario: Non-macOS platform
+#### 场景：非 macOS 平台
 
-- **WHEN** `accessibility_trusted` is called on Windows or Linux
-- **THEN** it SHALL return `true`
+- **当** 在 Windows 或 Linux 上调用 `accessibility_trusted`
+- **则** 应当返回 `true`
 
-### Requirement: Accessibility permission notice in Shortcuts settings
+### 需求：快捷键设置中的辅助功能权限提示
 
-On macOS, when Accessibility access is not granted, the system SHALL display a notice at the top of the Shortcuts settings section informing the user that global shortcuts require Accessibility access, and providing a button that opens the relevant macOS System Settings pane directly.
+在 macOS 上，当未授予辅助功能访问权限时，系统应当在快捷键设置部分顶部显示一个提示，告知用户全局快捷键需要辅助功能访问权限，并提供一个按钮直接打开相关的 macOS 系统设置面板。
 
-#### Scenario: Notice shown when not trusted
+#### 场景：未授权时显示提示
 
-- **WHEN** the user opens the Shortcuts section on macOS
-- **AND** Accessibility access has not been granted
-- **THEN** a notice SHALL be displayed above the shortcut inputs explaining the requirement
+- **当** 用户在 macOS 上打开快捷键部分
+- **且** 辅助功能访问权限未被授予
+- **则** 在快捷键输入上方应当显示一个提示，解释该需求
 
-#### Scenario: Notice includes action link
+#### 场景：提示包含操作链接
 
-- **WHEN** the notice is visible
-- **THEN** it SHALL contain a control that opens System Settings → Privacy & Security → Accessibility when activated
+- **当** 提示可见
+- **则** 应当包含一个控件，激活时打开系统设置 → 隐私与安全 → 辅助功能
 
-#### Scenario: Notice absent when trusted
+#### 场景：已授权时无提示
 
-- **WHEN** Accessibility access has been granted
-- **THEN** no notice SHALL be shown and the Shortcuts section SHALL display normally
+- **当** 辅助功能访问权限已被授予
+- **则** 不应显示提示，快捷键部分应当正常显示
 
-#### Scenario: Notice absent on non-macOS
+#### 场景：非 macOS 上无提示
 
-- **WHEN** the app is running on Windows or Linux
-- **THEN** no Accessibility notice SHALL appear in the Shortcuts section
+- **当** 应用在 Windows 或 Linux 上运行
+- **则** 快捷键部分不应出现辅助功能提示
 
-### Requirement: Accessibility status re-checked on window focus
+### 需求：窗口获焦时重新检查辅助功能状态
 
-When Accessibility access has not yet been granted, the system SHALL re-check trust status each time the settings window regains focus, and SHALL automatically dismiss the notice once access is confirmed.
+当辅助功能访问权限尚未授予时，系统应当在每次设置窗口重新获得焦点时重新检查授权状态，并在确认获得访问权限后自动关闭提示。
 
-#### Scenario: Notice dismisses after access granted
+#### 场景：授权后提示消失
 
-- **WHEN** the user grants Accessibility access in System Settings
-- **AND** returns focus to the Pomotroid settings window
-- **THEN** the notice SHALL disappear without requiring a restart or manual refresh
+- **当** 用户在系统设置中授予辅助功能访问权限
+- **且** 将焦点返回 Pomotroid 设置窗口
+- **则** 提示应当消失，无需重启或手动刷新

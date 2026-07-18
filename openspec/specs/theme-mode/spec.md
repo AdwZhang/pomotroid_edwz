@@ -1,111 +1,111 @@
-## ADDED Requirements
+## 新增需求
 
-### Requirement: Theme mode selection
+### 需求：主题模式选择
 
-The system SHALL provide three theme modes — Auto, Light, and Dark — that control how the active theme is resolved. The active mode SHALL be persisted in settings as `theme_mode` with values `"auto"`, `"light"`, or `"dark"`.
+系统应当提供三种主题模式 — 自动、浅色和深色 — 控制活跃主题的解析方式。活跃模式应当作为 `theme_mode` 持久化在设置中，值为 `"auto"`、`"light"` 或 `"dark"`。
 
-#### Scenario: Default mode is Auto
+#### 场景：默认模式为自动
 
-- **WHEN** a new user launches the app for the first time
-- **THEN** `theme_mode` is `"auto"`
+- **当** 新用户首次启动应用
+- **则** `theme_mode` 为 `"auto"`
 
-#### Scenario: User selects Light mode
+#### 场景：用户选择浅色模式
 
-- **WHEN** the user selects Light mode
-- **THEN** `theme_mode` is saved as `"light"` and the light theme picker's selection becomes the active theme immediately
+- **当** 用户选择浅色模式
+- **则** `theme_mode` 保存为 `"light"`，浅色主题选择器的选择立即成为活跃主题
 
-#### Scenario: User selects Dark mode
+#### 场景：用户选择深色模式
 
-- **WHEN** the user selects Dark mode
-- **THEN** `theme_mode` is saved as `"dark"` and the dark theme picker's selection becomes the active theme immediately
+- **当** 用户选择深色模式
+- **则** `theme_mode` 保存为 `"dark"`，深色主题选择器的选择立即成为活跃主题
 
-#### Scenario: User selects Auto mode
+#### 场景：用户选择自动模式
 
-- **WHEN** the user selects Auto mode
-- **THEN** `theme_mode` is saved as `"auto"` and the active theme is resolved from the OS color scheme immediately
+- **当** 用户选择自动模式
+- **则** `theme_mode` 保存为 `"auto"`，活跃主题立即从操作系统配色方案解析
 
-### Requirement: Independent light and dark theme pickers
+### 需求：独立的浅色和深色主题选择器
 
-The system SHALL maintain two independent theme selections: `theme_light` and `theme_dark`. Both pickers SHALL display all available themes and SHALL be accessible via the collapsible theme picker UI. Defaults SHALL be `"Pomotroid"` for both.
+系统应当维护两个独立的主题选择：`theme_light` 和 `theme_dark`。两个选择器都应当显示所有可用主题，并可通过可折叠主题选择器 UI 访问。默认值应当都为 `"Pomotroid"`。
 
-#### Scenario: Light theme selection when Light mode active
+#### 场景：浅色模式激活时的浅色主题选择
 
-- **WHEN** mode is `"light"` and the user selects a theme from the light picker
-- **THEN** `theme_light` is saved and the selected theme is applied immediately
+- **当** 模式为 `"light"` 且用户从浅色选择器选择主题
+- **则** `theme_light` 被保存，选中的主题立即应用
 
-#### Scenario: Dark theme selection when Dark mode active
+#### 场景：深色模式激活时的深色主题选择
 
-- **WHEN** mode is `"dark"` and the user selects a theme from the dark picker
-- **THEN** `theme_dark` is saved and the selected theme is applied immediately
+- **当** 模式为 `"dark"` 且用户从深色选择器选择主题
+- **则** `theme_dark` 被保存，选中的主题立即应用
 
-#### Scenario: Deferred preview for inactive picker
+#### 场景：非活跃选择器的延迟预览
 
-- **WHEN** the user selects a theme from the picker that is not currently active
-- **THEN** the selection is saved but the visible theme does not change
+- **当** 用户从当前非活跃的选择器选择主题
+- **则** 选择被保存但可见主题不变
 
-#### Scenario: Deferred light picker in Auto mode with OS dark
+#### 场景：操作系统为深色时自动模式下的延迟浅色选择器
 
-- **WHEN** mode is `"auto"`, the OS is dark, and the user selects a theme from the light picker
-- **THEN** `theme_light` is saved but the active theme remains the dark theme
+- **当** 模式为 `"auto"`，操作系统为深色，用户从浅色选择器选择主题
+- **则** `theme_light` 被保存但活跃主题仍为深色主题
 
-#### Scenario: Both pickers accessible regardless of active mode
+#### 场景：两个选择器无论活跃模式如何都可访问
 
-- **WHEN** the user opens the settings Appearance section
-- **THEN** both the light and dark pickers are reachable by expanding their rows, regardless of `theme_mode`
+- **当** 用户打开设置外观部分
+- **则** 无论 `theme_mode` 如何，展开各行都可以访问浅色和深色选择器
 
-### Requirement: Active theme resolution
+### 需求：活跃主题解析
 
-The system SHALL resolve the active theme using: Auto → OS dark? `theme_dark` : `theme_light`; Light → `theme_light`; Dark → `theme_dark`. The `theme` settings field SHALL be removed; the active theme SHALL always be derived at runtime.
+系统应当使用以下方式解析活跃主题：自动 → 操作系统深色？`theme_dark` : `theme_light`；浅色 → `theme_light`；深色 → `theme_dark`。`theme` 设置字段应当被移除；活跃主题应当始终在运行时派生。
 
-#### Scenario: Auto mode resolves to dark theme on dark OS
+#### 场景：深色操作系统下自动模式解析为深色主题
 
-- **WHEN** `theme_mode` is `"auto"` and `prefers-color-scheme` is `dark`
-- **THEN** the active theme is `theme_dark`
+- **当** `theme_mode` 为 `"auto"` 且 `prefers-color-scheme` 为 `dark`
+- **则** 活跃主题为 `theme_dark`
 
-#### Scenario: Auto mode resolves to light theme on light OS
+#### 场景：浅色操作系统下自动模式解析为浅色主题
 
-- **WHEN** `theme_mode` is `"auto"` and `prefers-color-scheme` is `light`
-- **THEN** the active theme is `theme_light`
+- **当** `theme_mode` 为 `"auto"` 且 `prefers-color-scheme` 为 `light`
+- **则** 活跃主题为 `theme_light`
 
-#### Scenario: Light mode ignores OS
+#### 场景：浅色模式忽略操作系统
 
-- **WHEN** `theme_mode` is `"light"` regardless of OS color scheme
-- **THEN** the active theme is always `theme_light`
+- **当** `theme_mode` 为 `"light"`，无论操作系统配色方案如何
+- **则** 活跃主题始终为 `theme_light`
 
-#### Scenario: Dark mode ignores OS
+#### 场景：深色模式忽略操作系统
 
-- **WHEN** `theme_mode` is `"dark"` regardless of OS color scheme
-- **THEN** the active theme is always `theme_dark`
+- **当** `theme_mode` 为 `"dark"`，无论操作系统配色方案如何
+- **则** 活跃主题始终为 `theme_dark`
 
-### Requirement: Live OS color scheme response
+### 需求：实时响应操作系统配色方案
 
-When `theme_mode` is `"auto"`, the application SHALL respond to OS color scheme changes without requiring a restart. Both the main window and the settings window SHALL update simultaneously.
+当 `theme_mode` 为 `"auto"` 时，应用应当响应操作系统配色方案变更，无需重启。主窗口和设置窗口应当同时更新。
 
-#### Scenario: OS switches to dark while app is open in Auto mode
+#### 场景：应用在自动模式打开时操作系统切换到深色
 
-- **WHEN** `theme_mode` is `"auto"` and the OS switches to dark mode
-- **THEN** the active theme changes to `theme_dark` immediately in all open windows
+- **当** `theme_mode` 为 `"auto"` 且操作系统切换到深色模式
+- **则** 活跃主题立即在所有打开的窗口中变为 `theme_dark`
 
-#### Scenario: OS switches to light while app is open in Auto mode
+#### 场景：应用在自动模式打开时操作系统切换到浅色
 
-- **WHEN** `theme_mode` is `"auto"` and the OS switches to light mode
-- **THEN** the active theme changes to `theme_light` immediately in all open windows
+- **当** `theme_mode` 为 `"auto"` 且操作系统切换到浅色模式
+- **则** 活跃主题立即在所有打开的窗口中变为 `theme_light`
 
-#### Scenario: OS change ignored when not in Auto mode
+#### 场景：非自动模式下忽略操作系统变更
 
-- **WHEN** `theme_mode` is `"light"` or `"dark"` and the OS color scheme changes
-- **THEN** the active theme does not change
+- **当** `theme_mode` 为 `"light"` 或 `"dark"` 且操作系统配色方案变更
+- **则** 活跃主题不变
 
-### Requirement: Migration for existing users
+### 需求：现有用户迁移
 
-On first launch after the update, the system SHALL migrate existing single-theme settings to the new three-field model with no visible change to the user.
+更新后首次启动时，系统应当将现有的单主题设置迁移到新的三字段模型，对用户无可见变化。
 
-#### Scenario: Existing user with custom theme
+#### 场景：有自定义主题的现有用户
 
-- **WHEN** `theme_light` is absent from the settings DB and `theme` exists with value e.g. `"Nord"`
-- **THEN** `theme_light` and `theme_dark` are both set to `"Nord"` and `theme_mode` is set to `"auto"`
+- **当** 设置数据库中不存在 `theme_light` 且 `theme` 存在值如 `"Nord"`
+- **则** `theme_light` 和 `theme_dark` 都设为 `"Nord"`，`theme_mode` 设为 `"auto"`
 
-#### Scenario: Brand new install
+#### 场景：全新安装
 
-- **WHEN** no settings exist in the DB
-- **THEN** `theme_mode = "auto"`, `theme_light = "Pomotroid"`, `theme_dark = "Pomotroid"` are seeded as defaults
+- **当** 数据库中无设置
+- **则** 播种默认值 `theme_mode = "auto"`、`theme_light = "Pomotroid"`、`theme_dark = "Pomotroid"`

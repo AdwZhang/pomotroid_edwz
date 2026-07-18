@@ -1,38 +1,38 @@
-## ADDED Requirements
+## 新增需求
 
-### Requirement: Mona Sans is embedded and applied globally
+### 需求：Mona Sans 嵌入并全局应用
 
-The app SHALL embed Mona Sans as a variable font and apply it as the primary font family on the document body, so all text inherits it without per-component overrides.
+应用应当将 Mona Sans 作为可变字体嵌入，并在文档 body 上作为主要字体族应用，使所有文本无需逐组件覆盖即可继承。
 
-#### Scenario: Font renders without network access
+#### 场景：无网络访问时字体正常渲染
 
-- **WHEN** the app is launched with no internet connection
-- **THEN** all UI text SHALL render in Mona Sans (not a system fallback)
+- **当** 应用在无互联网连接时启动
+- **则** 所有 UI 文本应当以 Mona Sans 渲染（而非系统回退字体）
 
-#### Scenario: Font family cascades to all components
+#### 场景：字体族级联到所有组件
 
-- **WHEN** any component renders text without an explicit font-family override
-- **THEN** that text SHALL render in Mona Sans
+- **当** 任何组件在无显式 font-family 覆盖的情况下渲染文本
+- **则** 该文本应当以 Mona Sans 渲染
 
-### Requirement: Optical sizing adapts automatically to font size
+### 需求：光学尺寸根据字体大小自动适应
 
-The app SHALL enable `font-optical-sizing: auto` globally so the optical-size axis adjusts letterform contrast and spacing based on each element's rendered font size, including SVG text elements in the stats views.
+应用应当全局启用 `font-optical-sizing: auto`，使光学尺寸轴根据每个元素的渲染字体大小调整字形对比度和间距，包括统计视图中的 SVG 文本元素。
 
-#### Scenario: Large display text uses display-optimized forms
+#### 场景：大号显示文本使用展示优化的字形
 
-- **WHEN** the timer display renders at ~2.8rem
-- **THEN** the font SHALL use high optical-size letterforms (tighter, higher contrast)
+- **当** 计时器显示以约 2.8rem 渲染
+- **则** 字体应当使用高光学尺寸字形（更紧凑、更高对比度）
 
-#### Scenario: Small SVG labels use body-optimized forms
+#### 场景：小号 SVG 标签使用正文优化的字形
 
-- **WHEN** chart axis labels render at 8–9px
-- **THEN** the font SHALL use low optical-size letterforms (more open, better legibility)
+- **当** 图表轴标签以 8-9px 渲染
+- **则** 字体应当使用低光学尺寸字形（更开放、更好的可读性）
 
-### Requirement: Shortcut display uses Mona Sans Mono
+### 需求：快捷键显示使用 Mona Sans Mono
 
-The keyboard shortcut input component SHALL use Mona Sans Mono as its font family, maintaining the monospaced character needed for shortcut key alignment while matching the overall Mona Sans family.
+键盘快捷键输入组件应当使用 Mona Sans Mono 作为其字体族，在匹配整体 Mona Sans 家族的同时保持快捷键对齐所需的等宽特性。
 
-#### Scenario: Shortcut keys render in monospaced Mona Sans
+#### 场景：快捷键以等宽 Mona Sans 渲染
 
-- **WHEN** the Shortcuts settings section displays a bound shortcut
-- **THEN** the key combination text SHALL render in Mona Sans Mono
+- **当** 快捷键设置部分显示已绑定的快捷键
+- **则** 键组合文本应当以 Mona Sans Mono 渲染

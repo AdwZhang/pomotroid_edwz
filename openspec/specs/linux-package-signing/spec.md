@@ -1,47 +1,47 @@
-## ADDED Requirements
+## 新增需求
 
-### Requirement: All three Linux release artifacts are GPG-signed in CI
+### 需求：所有三个 Linux 发布产物在 CI 中进行 GPG 签名
 
-The release CI pipeline SHALL produce a detached ASCII-armored GPG signature file (`.asc`) for each Linux artifact (`.deb`, `.rpm`, `.AppImage`) using a private key stored as a repository secret.
+发布 CI 流水线应当为每个 Linux 产物（`.deb`、`.rpm`、`.AppImage`）生成一个分离的 ASCII 封装 GPG 签名文件（`.asc`），使用存储为仓库 secret 的私钥。
 
-#### Scenario: Signing step produces three signature files
+#### 场景：签名步骤生成三个签名文件
 
-- **WHEN** a release tag matching `v[0-9]+.[0-9]+.[0-9]+` is pushed
-- **THEN** the `build-linux` CI job SHALL produce `*.deb.asc`, `*.rpm.asc`, and `*.AppImage.asc` alongside the corresponding package files
+- **当** 推送匹配 `v[0-9]+.[0-9]+.[0-9]+` 的发布标签
+- **则** `build-linux` CI 作业应当在对应的包文件旁生成 `*.deb.asc`、`*.rpm.asc` 和 `*.AppImage.asc`
 
-#### Scenario: Private key is not persisted
+#### 场景：私钥不被持久化
 
-- **WHEN** the signing step completes
-- **THEN** the imported GPG key SHALL exist only in the ephemeral CI runner's keyring for the duration of the job and SHALL NOT appear in any artifact, log, or persistent storage
+- **当** 签名步骤完成
+- **则** 导入的 GPG 密钥应当仅存在于临时 CI 运行器的密钥环中（作业持续期间），不应出现在任何产物、日志或持久存储中
 
-### Requirement: Signature files are distributed with release artifacts
+### 需求：签名文件随发布产物分发
 
-The `.asc` signature files SHALL be uploaded to the GitHub Release alongside the corresponding packages so users can download both from the same release page.
+`.asc` 签名文件应当与对应的包一起上传到 GitHub Release，以便用户可以从同一发布页面下载两者。
 
-#### Scenario: Release page includes all six files
+#### 场景：发布页面包含所有六个文件
 
-- **WHEN** a draft GitHub Release is created by the release workflow
-- **THEN** the release assets SHALL include `*.deb`, `*.deb.asc`, `*.rpm`, `*.rpm.asc`, `*.AppImage`, and `*.AppImage.asc`
+- **当** 发布工作流创建草稿 GitHub Release
+- **则** 发布资产应当包含 `*.deb`、`*.deb.asc`、`*.rpm`、`*.rpm.asc`、`*.AppImage` 和 `*.AppImage.asc`
 
-### Requirement: Public key is available in the repository
+### 需求：公钥在仓库中可用
 
-The GPG public key used for signing SHALL be committed to the repository root as `public.asc` so users can import it without relying on a key server.
+用于签名的 GPG 公钥应当作为 `public.asc` 提交到仓库根目录，以便用户无需依赖密钥服务器即可导入。
 
-#### Scenario: Public key file is present
+#### 场景：公钥文件存在
 
-- **WHEN** a user clones or browses the repository
-- **THEN** `public.asc` SHALL be present at the repository root containing the ASCII-armored public key
+- **当** 用户克隆或浏览仓库
+- **则** `public.asc` 应当存在于仓库根目录，包含 ASCII 封装的公钥
 
-### Requirement: Verification and setup instructions are documented
+### 需求：验证和设置说明已文档化
 
-A `SECURITY.md` file SHALL document the public key fingerprint, how to verify each artifact format, a note that repo-channel signing (APT, RPM, Flatpak, Snap, AUR) is handled separately, and maintainer instructions for key generation and rotation.
+`SECURITY.md` 文件应当记录公钥指纹、如何验证每种产物格式、关于仓库渠道签名（APT、RPM、Flatpak、Snap、AUR）单独处理的说明，以及维护者的密钥生成和轮换指令。
 
-#### Scenario: User can verify a downloaded artifact
+#### 场景：用户可以验证下载的产物
 
-- **WHEN** a user opens `SECURITY.md`
-- **THEN** the file SHALL contain the GPG key fingerprint and the `gpg --verify <file>.asc <file>` command for each of the three artifact formats
+- **当** 用户打开 `SECURITY.md`
+- **则** 文件应当包含 GPG 密钥指纹和三种产物格式各自的 `gpg --verify <file>.asc <file>` 命令
 
-#### Scenario: Maintainer can set up or rotate the signing key
+#### 场景：维护者可以设置或轮换签名密钥
 
-- **WHEN** a maintainer reads `SECURITY.md`
-- **THEN** the file SHALL contain step-by-step commands for generating the keypair, exporting it, and configuring `GPG_PRIVATE_KEY` and `GPG_PASSPHRASE` as repository secrets
+- **当** 维护者阅读 `SECURITY.md`
+- **则** 文件应当包含生成密钥对、导出密钥对、配置 `GPG_PRIVATE_KEY` 和 `GPG_PASSPHRASE` 为仓库 secrets 的分步命令

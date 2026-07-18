@@ -1,66 +1,66 @@
-## Purpose
+## 目的
 
-The window-position capability ensures the main application window reopens at the same position and size it occupied when last used, providing a seamless experience across sessions and handling edge cases such as disconnected monitors or changed display layouts.
-
----
-
-## Requirements
-
-### Requirement: Window position is persisted on move and resize
-
-The system SHALL save the main window's position (`window_x`, `window_y`) and size (`window_width`, `window_height`) to the settings database whenever the window is moved or resized. Values are physical pixel coordinates and dimensions as reported by the OS.
-
-#### Scenario: Position saved after window is moved
-
-- **WHEN** the user drags the main window to a new position
-- **THEN** the updated `window_x` and `window_y` values SHALL be written to the settings database
-
-#### Scenario: Size saved after window is resized
-
-- **WHEN** the user resizes the main window
-- **THEN** the updated `window_width` and `window_height` values SHALL be written to the settings database
+窗口位置功能确保主应用窗口在上次使用时占据的相同位置和尺寸重新打开，提供跨会话的无缝体验，并处理显示器断开连接或显示布局变更等边缘情况。
 
 ---
 
-### Requirement: Window position is restored on startup
+## 需求
 
-The system SHALL read the saved position and size from the settings database on startup and apply them to the main window before it is shown, placing the window at the same location it occupied when last used.
+### 需求：窗口位置在移动和调整大小时持久化
 
-#### Scenario: Position restored on next launch
+系统应当在窗口移动或调整大小时将主窗口的位置（`window_x`、`window_y`）和尺寸（`window_width`、`window_height`）保存到设置数据库。值为操作系统报告的物理像素坐标和尺寸。
 
-- **WHEN** the application starts
-- **AND** valid saved position values exist in the database
-- **AND** the saved position is on an available monitor
-- **THEN** the main window SHALL open at the saved position with the saved size
+#### 场景：窗口移动后保存位置
 
-#### Scenario: No saved position on first launch
+- **当** 用户将主窗口拖到新位置
+- **则** 更新后的 `window_x` 和 `window_y` 值应当写入设置数据库
 
-- **WHEN** the application starts for the first time
-- **AND** no position values are present in the settings database
-- **THEN** the main window SHALL open at the OS default position
+#### 场景：窗口调整大小后保存尺寸
+
+- **当** 用户调整主窗口大小
+- **则** 更新后的 `window_width` 和 `window_height` 值应当写入设置数据库
 
 ---
 
-### Requirement: Saved position is validated against current display layout
+### 需求：启动时恢复窗口位置
 
-Before restoring a saved position, the system SHALL verify that the saved window rectangle intersects at least one currently available monitor by at least 1 pixel. If the saved position is entirely off all available monitors, the saved values SHALL be discarded and the window SHALL open at the OS default position.
+系统应当在启动时从设置数据库读取保存的位置和尺寸，并在窗口显示前应用到主窗口，将窗口放置在上次使用时占据的位置。
 
-#### Scenario: Saved monitor is disconnected
+#### 场景：下次启动时恢复位置
 
-- **WHEN** the application starts
-- **AND** a saved position exists that was on a monitor no longer connected
-- **THEN** the saved position SHALL be discarded
-- **AND** the window SHALL open at the OS default position
+- **当** 应用启动
+- **且** 数据库中存在有效的保存位置值
+- **且** 保存的位置在可用显示器上
+- **则** 主窗口应当在保存的位置以保存的尺寸打开
 
-#### Scenario: Display resolution decreased, window is off-screen
+#### 场景：首次启动时无保存位置
 
-- **WHEN** the application starts
-- **AND** a saved position exists but the window rectangle does not intersect any available monitor
-- **THEN** the saved position SHALL be discarded
-- **AND** the window SHALL open at the OS default position
+- **当** 应用首次启动
+- **且** 设置数据库中无位置值
+- **则** 主窗口应当在操作系统默认位置打开
 
-#### Scenario: Multi-monitor position valid
+---
 
-- **WHEN** the application starts on a system with multiple monitors
-- **AND** the saved position is within the bounds of a connected monitor
-- **THEN** the window SHALL be restored on that monitor at the saved coordinates
+### 需求：保存的位置根据当前显示布局进行验证
+
+在恢复保存的位置之前，系统应当验证保存的窗口矩形与至少一个当前可用显示器有至少 1 像素的交集。如果保存的位置完全在所有可用显示器之外，保存的值应当被丢弃，窗口应当在操作系统默认位置打开。
+
+#### 场景：保存位置所在的显示器已断开
+
+- **当** 应用启动
+- **且** 存在保存位置，但该位置位于已不再连接的显示器上
+- **则** 保存的位置应当被丢弃
+- **且** 窗口应当在操作系统默认位置打开
+
+#### 场景：显示器分辨率降低，窗口在屏幕外
+
+- **当** 应用启动
+- **且** 存在保存位置，但窗口矩形与任何可用显示器都没有交集
+- **则** 保存的位置应当被丢弃
+- **且** 窗口应当在操作系统默认位置打开
+
+#### 场景：多显示器位置有效
+
+- **当** 应用在有多个显示器的系统上启动
+- **且** 保存的位置在已连接显示器的范围内
+- **则** 窗口应当在该显示器上以保存的坐标恢复

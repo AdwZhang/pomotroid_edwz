@@ -1,35 +1,35 @@
-### Requirement: Mini controls displayed in compact mode
+### 需求：迷你控件在紧凑模式下显示
 
-When the timer window is in compact mode (either dimension < 300px), the system SHALL display a slim row of three icon-only buttons below the timer dial: restart current round, play/pause, and skip round. These controls SHALL be rendered at a fixed size independent of the dial's zoom scale.
+当计时器窗口处于紧凑模式（任一维度 < 300px）时，系统应当在计时器表盘下方显示一排纤细的三个纯图标按钮：重启当前轮次、播放/暂停和跳过轮次。这些控件应当以固定大小渲染，不受表盘缩放比例影响。
 
-#### Scenario: Controls appear in compact mode
+#### 场景：紧凑模式下控件出现
 
-- **WHEN** the window width or height drops below 300px
-- **THEN** the restart, play/pause, and skip buttons SHALL be visible below the dial
+- **当** 窗口宽度或高度降到 300px 以下
+- **则** 重启、播放/暂停和跳过按钮应当在表盘下方可见
 
-#### Scenario: Controls absent in normal mode
+#### 场景：正常模式下控件不存在
 
-- **WHEN** the window is at or above the compact threshold in both dimensions
-- **THEN** the mini controls SHALL NOT be rendered (the full controls row is shown instead)
+- **当** 窗口在两个维度上都在紧凑阈值之上
+- **则** 迷你控件不应渲染（改为显示完整控件行）
 
-#### Scenario: Play/pause icon reflects running state
+#### 场景：播放/暂停图标反映运行状态
 
-- **WHEN** the timer is running
-- **THEN** the play/pause button SHALL show a pause icon
-- **WHEN** the timer is paused or idle
-- **THEN** the play/pause button SHALL show a play icon
+- **当** 计时器正在运行
+- **则** 播放/暂停按钮应当显示暂停图标
+- **当** 计时器已暂停或空闲
+- **则** 播放/暂停按钮应当显示播放图标
 
-#### Scenario: Restart button restarts current round
+#### 场景：重启按钮重启当前轮次
 
-- **WHEN** the user clicks the restart button in compact mode
-- **THEN** the current round's elapsed time SHALL reset to zero without advancing the sequence
+- **当** 用户在紧凑模式下点击重启按钮
+- **则** 当前轮次的已用时间应当重置为零，不推进序列
 
-#### Scenario: Skip button advances to next round
+#### 场景：跳过按钮推进到下一轮次
 
-- **WHEN** the user clicks the skip button in compact mode
-- **THEN** the timer SHALL advance to the next round in the sequence
+- **当** 用户在紧凑模式下点击跳过按钮
+- **则** 计时器应当推进到序列中的下一个轮次
 
-#### Scenario: Controls scale independently of dial
+#### 场景：控件独立于表盘缩放
 
-- **WHEN** the dial zoom scale is at its minimum (0.4)
-- **THEN** the mini control buttons SHALL still render at their full defined size (24×24px)
+- **当** 表盘缩放比例处于最小值（0.4）
+- **则** 迷你控件按钮仍应以其完整定义尺寸（24×24px）渲染

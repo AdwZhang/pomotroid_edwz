@@ -1,102 +1,102 @@
-## ADDED Requirements
+## 新增需求
 
-### Requirement: Timer duration badge is an editable MM:SS input
+### 需求：计时器时长徽章是可编辑的 MM:SS 输入框
 
-The Settings → Timer section SHALL replace the static time display badge for Focus, Short Break, and Long Break rows with an editable text input. The input SHALL display the current duration in `MM:SS` format when not focused and SHALL accept user input in `MM:SS` or bare-integer-minutes format. The valid range SHALL be 1:00 (60 seconds) minimum to 90:00 (5400 seconds) maximum.
+设置 → 计时器部分应当将专注、短休息和长休息行的静态时间显示徽章替换为可编辑文本输入框。输入框在未聚焦时应当以 `MM:SS` 格式显示当前时长，并接受用户以 `MM:SS` 或纯整数分钟格式输入。有效范围应当为最小 1:00（60 秒）到最大 90:00（5400 秒）。
 
-#### Scenario: Badge displays current value in MM:SS format
+#### 场景：徽章以 MM:SS 格式显示当前值
 
-- **WHEN** the settings window opens
-- **THEN** each timer badge SHALL display the stored duration as `MM:SS` (e.g. 25:00 for 1500 s, 5:39 for 339 s)
+- **当** 设置窗口打开
+- **则** 每个计时器徽章应当以 `MM:SS` 显示存储的时长（如 1500 秒显示为 25:00，339 秒显示为 5:39）
 
-#### Scenario: Clicking the badge activates edit mode
+#### 场景：点击徽章激活编辑模式
 
-- **WHEN** the user clicks the timer badge
-- **THEN** the input SHALL receive focus and its text SHALL be selected
+- **当** 用户点击计时器徽章
+- **则** 输入框应当获得焦点，其文本应当被选中
 
-#### Scenario: Entering a valid MM:SS value and pressing Enter saves it
+#### 场景：输入有效 MM:SS 值并按回车保存
 
-- **WHEN** the user types `5:39` and presses Enter
-- **THEN** the duration SHALL be saved as 339 seconds and the badge SHALL display `5:39`
+- **当** 用户输入 `5:39` 并按回车
+- **则** 时长应当保存为 339 秒，徽章应当显示 `5:39`
 
-#### Scenario: Entering a bare integer is interpreted as whole minutes
+#### 场景：输入纯整数被解释为整分钟
 
-- **WHEN** the user types `25` and commits
-- **THEN** the duration SHALL be saved as 1500 seconds and the badge SHALL display `25:00`
+- **当** 用户输入 `25` 并提交
+- **则** 时长应当保存为 1500 秒，徽章应当显示 `25:00`
 
-#### Scenario: Value below minimum is clamped to 1:00
+#### 场景：低于最小值被钳制到 1:00
 
-- **WHEN** the user enters a value that resolves to fewer than 60 seconds (e.g. `0:30`)
-- **THEN** the duration SHALL be clamped to 60 seconds and the badge SHALL display `1:00`
+- **当** 用户输入解析为少于 60 秒的值（如 `0:30`）
+- **则** 时长应当被钳制到 60 秒，徽章应当显示 `1:00`
 
-#### Scenario: Value above maximum is clamped to 90:00
+#### 场景：超过最大值被钳制到 90:00
 
-- **WHEN** the user enters a value that resolves to more than 5400 seconds (e.g. `91:00`)
-- **THEN** the duration SHALL be clamped to 5400 seconds and the badge SHALL display `90:00`
+- **当** 用户输入解析为超过 5400 秒的值（如 `91:00`）
+- **则** 时长应当被钳制到 5400 秒，徽章应当显示 `90:00`
 
-#### Scenario: Invalid input reverts to previous value
+#### 场景：无效输入恢复为之前的值
 
-- **WHEN** the user enters text that cannot be parsed (e.g. `abc`, `::`)
-- **THEN** the duration SHALL remain unchanged and the badge SHALL display the previous value
+- **当** 用户输入无法解析的文本（如 `abc`、`::`）
+- **则** 时长应当保持不变，徽章应当显示之前的值
 
-#### Scenario: Blurring the field commits the value
+#### 场景：失焦时提交值
 
-- **WHEN** the user edits the badge and clicks elsewhere without pressing Enter
-- **THEN** the value SHALL be committed (parsed, clamped, saved) identically to pressing Enter
+- **当** 用户编辑徽章后点击其他地方而未按回车
+- **则** 值应当被提交（解析、钳制、保存），与按回车相同
 
-#### Scenario: Pressing Tab commits the value and moves focus
+#### 场景：按 Tab 提交值并移动焦点
 
-- **WHEN** the user edits the badge and presses Tab
-- **THEN** the value SHALL be committed and focus SHALL move to the next focusable element
+- **当** 用户编辑徽章并按 Tab
+- **则** 值应当被提交，焦点应当移到下一个可聚焦元素
 
-### Requirement: Slider and editable badge remain synchronised
+### 需求：滑块和可编辑徽章保持同步
 
-The timer duration slider SHALL continue to operate at 1-minute granularity. Moving the slider SHALL update the badge display and save the new whole-minute value in seconds. Editing the badge SHALL update the slider thumb to the nearest whole minute.
+计时器时长滑块应当继续以 1 分钟粒度操作。移动滑块应当更新徽章显示并以秒为单位保存新的整分钟值。编辑徽章应当将滑块滑块更新到最近的整分钟。
 
-#### Scenario: Moving the slider updates the badge
+#### 场景：移动滑块更新徽章
 
-- **WHEN** the user drags the Focus slider to 30
-- **THEN** the badge SHALL display `30:00` and 1800 seconds SHALL be saved
+- **当** 用户将专注滑块拖到 30
+- **则** 徽章应当显示 `30:00`，1800 秒应当被保存
 
-#### Scenario: Entering a sub-minute value updates the slider to nearest minute
+#### 场景：输入亚分钟值将滑块更新到最近分钟
 
-- **WHEN** the user enters `5:39` in the Focus badge
-- **THEN** the slider thumb SHALL move to position 6 (nearest whole minute) and 339 seconds SHALL be saved
+- **当** 用户在专注徽章中输入 `5:39`
+- **则** 滑块滑块应当移到位置 6（最近整分钟），339 秒应当被保存
 
-#### Scenario: Whole-minute badge entry leaves slider aligned
+#### 场景：整分钟徽章输入保持滑块对齐
 
-- **WHEN** the user enters `25:00` in the Focus badge
-- **THEN** the slider thumb SHALL sit at position 25 and 1500 seconds SHALL be saved
+- **当** 用户在专注徽章中输入 `25:00`
+- **则** 滑块滑块应当位于位置 25，1500 秒应当被保存
 
-### Requirement: Timer dial reflects new duration immediately when idle
+### 需求：空闲时计时器表盘立即反映新时长
 
-When a timer duration setting is changed while the timer is idle (not running, no elapsed progress), the main window's timer dial SHALL update to show the new total duration without requiring the user to manually reset the timer. This is achieved by emitting a `timer:reset` event with the updated snapshot after `apply_settings` is called.
+当计时器空闲（未运行，无已用进度）时更改计时器时长设置，主窗口的计时器表盘应当更新以显示新的总时长，无需用户手动重置计时器。这通过在 `apply_settings` 调用后发出带有更新快照的 `timer:reset` 事件来实现。
 
-#### Scenario: Changing Focus duration while idle updates the dial immediately
+#### 场景：空闲时更改专注时长立即更新表盘
 
-- **WHEN** the timer is idle and the user changes the Focus duration from 25:00 to 5:39 in Settings
-- **THEN** the main window dial SHALL update to display a full 5:39 ring without any user action on the main window
+- **当** 计时器空闲且用户在设置中将专注时长从 25:00 改为 5:39
+- **则** 主窗口表盘应当更新显示完整的 5:39 圆环，无需用户在主窗口上进行任何操作
 
-#### Scenario: Changing duration while timer is running takes effect next round
+#### 场景：运行时更改时长在下一轮次生效
 
-- **WHEN** the timer is actively counting down and the user changes the Focus duration
-- **THEN** the current countdown SHALL complete unchanged and the new duration SHALL apply from the next round onward
+- **当** 计时器正在倒计时且用户更改专注时长
+- **则** 当前倒计时应当不变地完成，新时长从下一轮次起应用
 
-### Requirement: Statistics focus time rounds to nearest minute
+### 需求：统计专注时间四舍五入到最近分钟
 
-The daily focus time reported in the Statistics view SHALL be rounded to the nearest minute (not truncated). A session of 5:39 (339 s) SHALL count as 6 minutes of focus time, not 5.
+统计视图中报告的每日专注时间应当四舍五入到最近分钟（非截断）。5:39（339 秒）的会话应当计为 6 分钟专注时间，而非 5 分钟。
 
-#### Scenario: Sub-minute remainder rounds up at 30 seconds
+#### 场景：30 秒及以上的亚分钟余数向上取整
 
-- **WHEN** completed work sessions total 339 seconds (5:39) for the day
-- **THEN** the Statistics view SHALL display `6m` as the focus time
+- **当** 当天已完成工作会话总计 339 秒（5:39）
+- **则** 统计视图应当显示 `6m` 作为专注时间
 
-#### Scenario: Sub-minute remainder rounds down below 30 seconds
+#### 场景：低于 30 秒的亚分钟余数向下取整
 
-- **WHEN** completed work sessions total 324 seconds (5:24) for the day
-- **THEN** the Statistics view SHALL display `5m` as the focus time
+- **当** 当天已完成工作会话总计 324 秒（5:24）
+- **则** 统计视图应当显示 `5m` 作为专注时间
 
-#### Scenario: Exact minute boundary is unchanged
+#### 场景：精确分钟边界不变
 
-- **WHEN** completed work sessions total exactly 1500 seconds (25:00) for the day
-- **THEN** the Statistics view SHALL display `25m` as the focus time
+- **当** 当天已完成工作会话总计恰好 1500 秒（25:00）
+- **则** 统计视图应当显示 `25m` 作为专注时间

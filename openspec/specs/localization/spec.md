@@ -1,117 +1,117 @@
-## Requirements
+## 需求
 
-### Requirement: Paraglide-based message catalog
+### 需求：基于 Paraglide 的消息目录
 
-The system SHALL use Paraglide JS v2 (`@inlang/paraglide-js`) to manage all user-visible strings. All strings SHALL be defined in message files (`messages/<locale>.json`) and accessed through generated type-safe message functions (`m.<key>()`). The base locale SHALL be `en`.
+系统应当使用 Paraglide JS v2（`@inlang/paraglide-js`）管理所有用户可见字符串。所有字符串应当定义在消息文件（`messages/<locale>.json`）中，并通过生成的类型安全消息函数（`m.<key>()`）访问。基础语言应当为 `en`。
 
-#### Scenario: Type-safe message access
+#### 场景：类型安全的消息访问
 
-- **WHEN** a developer references a message key that does not exist
-- **THEN** TypeScript SHALL report a compile error
+- **当** 开发者引用一个不存在的消息键
+- **则** TypeScript 应当报告编译错误
 
-#### Scenario: Unused message tree-shaking
+#### 场景：未使用消息的树摇优化
 
-- **WHEN** the app is built for production
-- **THEN** message functions for unused keys SHALL be eliminated from the bundle
+- **当** 应用构建为生产版本
+- **则** 未使用键的消息函数应当从包中被消除
 
-### Requirement: Supported locales at launch
+### 需求：发布时支持的语言
 
-The system SHALL ship eight locales: English (`en`, base), Spanish (`es`), French (`fr`), German (`de`), Japanese (`ja`), Chinese Simplified (`zh`), Portuguese (`pt`), and Turkish (`tr`). Non-English locales MAY be machine-translated. All locale message files SHALL contain translations for every key defined in `messages/en.json`.
+系统应当发布八种语言：英语（`en`，基础）、西班牙语（`es`）、法语（`fr`）、德语（`de`）、日语（`ja`）、简体中文（`zh`）、葡萄牙语（`pt`）和土耳其语（`tr`）。非英语语言可以是机器翻译。所有语言消息文件应当包含 `messages/en.json` 中定义的每个键的翻译。
 
-#### Scenario: All keys present in non-English locales
+#### 场景：非英语语言中所有键都存在
 
-- **WHEN** a non-English message file is loaded
-- **THEN** every key defined in `messages/en.json` SHALL have a corresponding entry
+- **当** 加载非英语消息文件
+- **则** `messages/en.json` 中定义的每个键都应当有对应条目
 
-#### Scenario: Fallback to English for missing keys
+#### 场景：缺失键回退到英语
 
-- **WHEN** a message key is missing in the active locale's file
-- **THEN** the English string SHALL be displayed as a fallback
+- **当** 活跃语言文件中缺少某个消息键
+- **则** 应当显示英语字符串作为回退
 
-#### Scenario: Turkish locale is selectable
+#### 场景：土耳其语可选择
 
-- **WHEN** the user opens the language picker in Settings → System
-- **THEN** Turkish SHALL appear as an option and selecting it SHALL display all UI strings in Turkish
+- **当** 用户在设置 → 系统中打开语言选择器
+- **则** 土耳其语应当作为选项出现，选择后应当以土耳其语显示所有 UI 字符串
 
-### Requirement: Automatic locale detection
+### 需求：自动语言检测
 
-The system SHALL default to `language = 'auto'`. When `'auto'` is active, the locale SHALL be resolved from `navigator.language` by matching the closest supported locale (prefix match). If no match is found, the locale SHALL fall back to `en`.
+系统应当默认为 `language = 'auto'`。当 `'auto'` 激活时，语言应当从 `navigator.language` 解析，通过匹配最接近的支持语言（前缀匹配）。如果没有匹配，语言应当回退到 `en`。
 
-#### Scenario: Exact locale match
+#### 场景：精确语言匹配
 
-- **WHEN** `navigator.language` is `'fr'`
-- **THEN** the active locale SHALL be `fr`
+- **当** `navigator.language` 为 `'fr'`
+- **则** 活跃语言应当为 `fr`
 
-#### Scenario: Region-qualified locale match
+#### 场景：带区域限定的语言匹配
 
-- **WHEN** `navigator.language` is `'de-AT'`
-- **THEN** the active locale SHALL be `de`
+- **当** `navigator.language` 为 `'de-AT'`
+- **则** 活跃语言应当为 `de`
 
-#### Scenario: Unsupported locale fallback
+#### 场景：不支持的语言回退
 
-- **WHEN** `navigator.language` is `'zh-CN'`
-- **THEN** the active locale SHALL fall back to `en`
+- **当** `navigator.language` 为 `'zh-CN'`
+- **则** 活跃语言应当回退到 `en`
 
-### Requirement: User language override
+### 需求：用户语言覆盖
 
-The system SHALL allow the user to override the detected locale via a language dropdown in the System settings section. The selected locale SHALL be persisted as the `language` setting and applied immediately without requiring an app restart.
+系统应当允许用户通过系统设置部分的语言下拉菜单覆盖检测到的语言。选择的语言应当作为 `language` 设置持久化并立即应用，无需重启应用。
 
-#### Scenario: User selects a specific language
+#### 场景：用户选择特定语言
 
-- **WHEN** the user selects `'fr'` from the language dropdown
-- **THEN** all UI strings in both windows SHALL immediately display in French
+- **当** 用户从语言下拉菜单选择 `'fr'`
+- **则** 两个窗口中的所有 UI 字符串应当立即以法语显示
 
-#### Scenario: User resets to automatic detection
+#### 场景：用户重置为自动检测
 
-- **WHEN** the user selects `'Auto'` from the language dropdown
-- **THEN** `language` is saved as `'auto'` and the locale is re-resolved from `navigator.language`
+- **当** 用户从语言下拉菜单选择 `'Auto'`
+- **则** `language` 保存为 `'auto'`，语言从 `navigator.language` 重新解析
 
-### Requirement: Locale applied in both windows
+### 需求：语言在两个窗口中应用
 
-The system SHALL apply the active locale in both the main timer window and the settings window. When the `language` setting changes, both windows SHALL re-call `setLocale()` in response to the `settings:changed` event.
+系统应当在主计时器窗口和设置窗口中都应用活跃语言。当 `language` 设置变更时，两个窗口都应当响应 `settings:changed` 事件重新调用 `setLocale()`。
 
-#### Scenario: Language change propagates to both windows
+#### 场景：语言变更传播到两个窗口
 
-- **WHEN** the user changes the language setting while the settings window is open
-- **THEN** both the timer window and the settings window SHALL update their displayed strings
+- **当** 用户在设置窗口打开时更改语言设置
+- **则** 计时器窗口和设置窗口都应当更新其显示的字符串
 
-### Requirement: Tooltip strings in all locales
+### 需求：所有语言中的工具提示字符串
 
-All tooltip i18n keys SHALL be present in every supported locale message file. Non-English translations MAY be machine-translated. The following keys are defined:
+所有工具提示 i18n 键应当存在于每个支持的语言消息文件中。非英语翻译可以是机器翻译。定义了以下键：
 
-| Key                             | English value                                                                                                                    |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `tooltip_settings`              | `"Open Settings"`                                                                                                                |
-| `tooltip_statistics`            | `"Open Statistics"`                                                                                                              |
-| `tooltip_restart_round`         | `"Restart the current round from the beginning."`                                                                                |
-| `tooltip_skip`                  | `"Skip to the next round."`                                                                                                      |
-| `tooltip_reset`                 | `"Reset the timer to the first work round. Current session progress will be cleared."`                                           |
-| `tooltip_mute`                  | `"Mute alert sounds"`                                                                                                            |
-| `tooltip_unmute`                | `"Unmute alert sounds"`                                                                                                          |
-| `tooltip_round_counter`         | `"Current work round out of the total rounds before a long break."`                                                              |
-| `tooltip_round_counter_session` | `"Continuous session round count. Resets only when the timer is reset."`                                                         |
-| `tooltip_verbose_logging`       | `"Enables detailed debug logging. Use when reporting issues. Log files are accessible via Open Log Folder in Settings → About."` |
-| `tooltip_websocket`             | `"Enables a local WebSocket server for external integrations such as stream overlays. Disabled by default."`                     |
+| 键 | 英文值 |
+| --- | --- |
+| `tooltip_settings` | `"Open Settings"` |
+| `tooltip_statistics` | `"Open Statistics"` |
+| `tooltip_restart_round` | `"Restart the current round from the beginning."` |
+| `tooltip_skip` | `"Skip to the next round."` |
+| `tooltip_reset` | `"Reset the timer to the first work round. Current session progress will be cleared."` |
+| `tooltip_mute` | `"Mute alert sounds"` |
+| `tooltip_unmute` | `"Unmute alert sounds"` |
+| `tooltip_round_counter` | `"Current work round out of the total rounds before a long break."` |
+| `tooltip_round_counter_session` | `"Continuous session round count. Resets only when the timer is reset."` |
+| `tooltip_verbose_logging` | `"Enables detailed debug logging. Use when reporting issues. Log files are accessible via Open Log Folder in Settings → About."` |
+| `tooltip_websocket` | `"Enables a local WebSocket server for external integrations such as stream overlays. Disabled by default."` |
 
-Note: `system_tray_gnome_hint` is reused by the Linux-only `TooltipInfo` icon on the System Tray toggle; it predates this feature and requires no new key.
+注意：`system_tray_gnome_hint` 被 Linux 专用的系统托盘开关上的 `TooltipInfo` 图标复用；它早于此功能，不需要新键。
 
-#### Scenario: All tooltip keys present in non-English locales
+#### 场景：非英语语言中所有工具提示键都存在
 
-- **WHEN** a non-English message file is loaded
-- **THEN** every tooltip key listed above SHALL have a corresponding entry in that file
+- **当** 加载非英语消息文件
+- **则** 上面列出的每个工具提示键在该文件中都应当有对应条目
 
 ---
 
-### Requirement: Translated desktop notifications
+### 需求：翻译后的桌面通知
 
-The system SHALL send desktop notifications with titles and bodies constructed from translated Paraglide message strings. Notification string construction SHALL happen on the frontend; the Rust backend SHALL receive a pre-translated `title` and `body`.
+系统应当使用翻译后的 Paraglide 消息字符串构造标题和正文来发送桌面通知。通知字符串构造应当在前端进行；Rust 后端应当接收预翻译的 `title` 和 `body`。
 
-#### Scenario: Work round complete notification in active locale
+#### 场景：工作轮次完成通知使用活跃语言
 
-- **WHEN** a work round completes and the active locale is `fr`
-- **THEN** the notification title and body SHALL be in French
+- **当** 工作轮次完成且活跃语言为 `fr`
+- **则** 通知标题和正文应当为法语
 
-#### Scenario: Notification Rust command accepts arbitrary title and body
+#### 场景：通知 Rust 命令接受任意标题和正文
 
-- **WHEN** `notification_show(title, body)` is called from the frontend
-- **THEN** Rust SHALL display the notification with the provided title and body without any string construction
+- **当** 从前端调用 `notification_show(title, body)`
+- **则** Rust 应当使用提供的标题和正文显示通知，不进行任何字符串构造

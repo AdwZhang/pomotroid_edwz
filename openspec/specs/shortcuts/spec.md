@@ -1,62 +1,62 @@
-### Requirement: Platform-aware default shortcut bindings
+### 需求：平台感知的默认快捷键绑定
 
-The system SHALL seed shortcut defaults that are appropriate for the host operating system. On macOS, defaults SHALL use the `Command+Shift` modifier with digit keys (`1`–`4`) to avoid conflicts with macOS media keys and follow platform conventions. On Windows and Linux, defaults SHALL use `Control+F1`–`F4`.
+系统应当播种适合主机操作系统的快捷键默认值。在 macOS 上，默认值应当使用 `Command+Shift` 修饰符加数字键（`1`–`4`）以避免与 macOS 媒体键冲突并遵循平台约定。在 Windows 和 Linux 上，默认值应当使用 `Control+F1`–`F4`。
 
-#### Scenario: macOS first launch shortcut defaults
+#### 场景：macOS 首次启动快捷键默认值
 
-- **WHEN** the application is launched for the first time on macOS
-- **AND** no shortcut preferences have been saved
-- **THEN** the default shortcuts SHALL be `Command+Shift+1` (toggle), `Command+Shift+2` (reset), `Command+Shift+3` (skip), `Command+Shift+4` (restart round)
+- **当** 应用在 macOS 上首次启动
+- **且** 未保存快捷键偏好
+- **则** 默认快捷键应当为 `Command+Shift+1`（切换）、`Command+Shift+2`（重置）、`Command+Shift+3`（跳过）、`Command+Shift+4`（重启轮次）
 
-#### Scenario: Windows/Linux first launch shortcut defaults
+#### 场景：Windows/Linux 首次启动快捷键默认值
 
-- **WHEN** the application is launched for the first time on Windows or Linux
-- **AND** no shortcut preferences have been saved
-- **THEN** the default shortcuts SHALL be `Control+F1` (toggle), `Control+F2` (reset), `Control+F3` (skip), `Control+F4` (restart round)
+- **当** 应用在 Windows 或 Linux 上首次启动
+- **且** 未保存快捷键偏好
+- **则** 默认快捷键应当为 `Control+F1`（切换）、`Control+F2`（重置）、`Control+F3`（跳过）、`Control+F4`（重启轮次）
 
-#### Scenario: Existing preferences preserved
+#### 场景：保留现有偏好
 
-- **WHEN** the application launches and shortcut preferences already exist in the database
-- **THEN** the existing saved shortcuts SHALL be used regardless of platform
+- **当** 应用启动且数据库中已存在快捷键偏好
+- **则** 无论平台如何，都应当使用现有保存的快捷键
 
 ---
 
-### Requirement: Global shortcuts can be enabled or disabled as a unit
+### 需求：全局快捷键可以作为整体启用或禁用
 
-The system SHALL provide a `global_shortcuts_enabled` boolean setting (DB key: `global_shortcuts_enabled`, default `false`). When `false`, no global shortcuts SHALL be registered with the OS. When `true`, all four shortcuts SHALL be registered using the current key bindings. The change SHALL take effect immediately without requiring a restart. When settings are reset to defaults, `global_shortcuts_enabled` SHALL revert to `false` and all local shortcut bindings SHALL also revert to their defaults.
+系统应当提供 `global_shortcuts_enabled` 布尔设置（DB 键：`global_shortcuts_enabled`，默认 `false`）。当为 `false` 时，不应向操作系统注册任何全局快捷键。当为 `true` 时，所有四个快捷键应当使用当前键绑定进行注册。变更应当立即生效，无需重启。当设置重置为默认值时，`global_shortcuts_enabled` 应当恢复为 `false`，所有本地快捷键绑定也应当恢复为默认值。
 
-#### Scenario: Global shortcuts disabled by default on first launch
+#### 场景：首次启动时全局快捷键默认禁用
 
-- **WHEN** the application is launched for the first time with no existing settings
-- **THEN** `global_shortcuts_enabled` SHALL be `false` and no global shortcuts SHALL be registered
+- **当** 应用首次启动且无现有设置
+- **则** `global_shortcuts_enabled` 应当为 `false`，不注册任何全局快捷键
 
-#### Scenario: Enabling global shortcuts registers them immediately
+#### 场景：启用全局快捷键立即注册
 
-- **WHEN** the user toggles global shortcuts on in Settings → Shortcuts
-- **THEN** all four shortcuts SHALL be registered with the OS using the current key bindings before the settings window is dismissed
+- **当** 用户在设置 → 快捷键中开启全局快捷键
+- **则** 所有四个快捷键应当在设置窗口关闭前使用当前键绑定向操作系统注册
 
-#### Scenario: Disabling global shortcuts unregisters them immediately
+#### 场景：禁用全局快捷键立即注销
 
-- **WHEN** the user toggles global shortcuts off in Settings → Shortcuts
-- **THEN** all four shortcuts SHALL be unregistered from the OS immediately, and pressing the previously bound keys SHALL have no effect on the timer
+- **当** 用户在设置 → 快捷键中关闭全局快捷键
+- **则** 所有四个快捷键应当立即从操作系统注销，按下之前绑定的键不应对计时器产生任何效果
 
-#### Scenario: Shortcut key fields are not editable while disabled
+#### 场景：禁用时快捷键字段不可编辑
 
-- **WHEN** global shortcuts are disabled
-- **THEN** the individual shortcut key fields SHALL be non-interactive (pointer events blocked) and visually dimmed, preventing edits until global shortcuts are re-enabled
+- **当** 全局快捷键已禁用
+- **则** 各快捷键字段应当不可交互（指针事件被阻止）且视觉上变暗，阻止编辑直到重新启用全局快捷键
 
-#### Scenario: Re-enabling shortcuts uses stored key bindings
+#### 场景：重新启用快捷键使用存储的键绑定
 
-- **WHEN** the user re-enables global shortcuts after previously disabling them
-- **THEN** the shortcuts registered SHALL reflect the key bindings currently stored in the database
+- **当** 用户在之前禁用后重新启用全局快捷键
+- **则** 注册的快捷键应当反映当前存储在数据库中的键绑定
 
-#### Scenario: Reset All Settings disables global shortcuts and restores local defaults
+#### 场景：重置所有设置禁用全局快捷键并恢复本地默认值
 
-- **WHEN** the user resets all settings to defaults
-- **THEN** `global_shortcuts_enabled` SHALL be `false` and any previously registered shortcuts SHALL be unregistered
-- **AND** all seven local shortcut bindings SHALL revert to their defaults
+- **当** 用户将所有设置重置为默认值
+- **则** `global_shortcuts_enabled` 应当为 `false`，任何之前注册的快捷键应当被注销
+- **且** 所有七个本地快捷键绑定应当恢复为默认值
 
-#### Scenario: Disabled state persists across restarts
+#### 场景：禁用状态跨重启持久化
 
-- **WHEN** global shortcuts are disabled and the application is restarted
-- **THEN** no global shortcuts SHALL be registered on startup
+- **当** 全局快捷键已禁用且应用重启
+- **则** 启动时不应注册任何全局快捷键

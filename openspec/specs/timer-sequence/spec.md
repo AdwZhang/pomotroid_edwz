@@ -1,142 +1,142 @@
-## Purpose
+## 目的
 
-Defines the behaviour of `SequenceState` — the component that determines which round type comes next and tracks round counters within a session.
-
----
-
-## Requirements
-
-### Requirement: Short breaks can be independently disabled
-
-The system SHALL support a `short_breaks_enabled` setting (default `true`). When `false`, the sequence SHALL skip ShortBreak rounds entirely: a Work round that would normally advance to ShortBreak SHALL instead advance directly to the next Work round, incrementing `work_round_number` by one. All other sequence behaviour (long breaks, counter reset at the long-break point) SHALL be unaffected.
-
-#### Scenario: Short breaks disabled — work rounds chain directly
-
-- **WHEN** `short_breaks_enabled` is `false`
-- **AND** a Work round completes before the long-break point
-- **THEN** the next round SHALL be Work with `work_round_number` incremented by one
-- **AND** no ShortBreak round SHALL occur
-
-#### Scenario: Short breaks disabled — long breaks still fire
-
-- **WHEN** `short_breaks_enabled` is `false`
-- **AND** a Work round completes at the long-break point (`work_round_number >= work_rounds_total`)
-- **AND** `long_breaks_enabled` is `true`
-- **THEN** the next round SHALL be LongBreak
-
-#### Scenario: Short breaks re-enabled — cycle resumes normally
-
-- **WHEN** `short_breaks_enabled` is changed to `true`
-- **THEN** the next Work-to-break transition SHALL produce a ShortBreak or LongBreak as determined by the current round position
+定义 `SequenceState` 的行为 —— 该组件负责决定下一个轮次类型，并在一个会话内跟踪轮次计数器。
 
 ---
 
-### Requirement: Long breaks can be independently disabled
+## 需求
 
-The system SHALL support a `long_breaks_enabled` setting (default `true`). When `false`, the sequence SHALL never advance to a LongBreak round. At the long-break point, the sequence SHALL advance to ShortBreak instead (if `short_breaks_enabled` is `true`) or directly to Work(1) (if `short_breaks_enabled` is also `false`). In both cases `work_round_number` SHALL reset to 1 at that boundary, preserving the cycle structure.
+### 需求：短休息可以独立禁用
 
-#### Scenario: Long breaks disabled — short break substituted at long-break point
+系统应当（SHALL）支持 `short_breaks_enabled` 设置项（默认 `true`）。当为 `false` 时，序列应当完全跳过短休息轮次：原本会进入短休息的工作轮次应当直接进入下一个工作轮次，并将 `work_round_number` 加一。其他所有序列行为（长休息、在长休息点重置计数器）不受影响。
 
-- **WHEN** `long_breaks_enabled` is `false`
-- **AND** `short_breaks_enabled` is `true`
-- **AND** a Work round completes at the long-break point
-- **THEN** the next round SHALL be ShortBreak
-- **AND** `work_round_number` SHALL reset to 1 after that ShortBreak completes
+#### 场景：短休息禁用 — 工作轮次直接连续
 
-#### Scenario: Long breaks disabled — cycle resets when both breaks disabled
+- **当** `short_breaks_enabled` 为 `false`
+- **且** 一个工作轮次在长休息点之前完成
+- **则** 下一个轮次应当为工作轮次，且 `work_round_number` 加一
+- **且** 不会出现短休息轮次
 
-- **WHEN** `long_breaks_enabled` is `false`
-- **AND** `short_breaks_enabled` is `false`
-- **AND** a Work round completes at the long-break point
-- **THEN** the next round SHALL be Work with `work_round_number` reset to 1
+#### 场景：短休息禁用 — 长休息仍然触发
 
-#### Scenario: Long breaks disabled — short breaks still fire before the long-break point
+- **当** `short_breaks_enabled` 为 `false`
+- **且** 一个工作轮次在长休息点完成（`work_round_number >= work_rounds_total`）
+- **且** `long_breaks_enabled` 为 `true`
+- **则** 下一个轮次应当为长休息
 
-- **WHEN** `long_breaks_enabled` is `false`
-- **AND** `short_breaks_enabled` is `true`
-- **AND** a Work round completes before the long-break point
-- **THEN** the next round SHALL be ShortBreak as normal
+#### 场景：短休息重新启用 — 循环恢复正常
 
-#### Scenario: Both breaks disabled — pure work loop
-
-- **WHEN** `short_breaks_enabled` is `false`
-- **AND** `long_breaks_enabled` is `false`
-- **THEN** the sequence SHALL consist entirely of Work rounds
-- **AND** `work_round_number` SHALL increment each round and reset to 1 at `work_rounds_total`
+- **当** `short_breaks_enabled` 被改为 `true`
+- **则** 下一次工作到休息的转换应当根据当前轮次位置产生短休息或长休息
 
 ---
 
-### Requirement: TimerSnapshot carries previous round type
+### 需求：长休息可以独立禁用
 
-`TimerSnapshot` SHALL include a `previous_round_type: String` field containing the round type that was active immediately before the current round began. The value SHALL be one of `"work"`, `"short-break"`, or `"long-break"`.
+系统应当支持 `long_breaks_enabled` 设置项（默认 `true`）。当为 `false` 时，序列永远不会进入长休息轮次。在长休息点，序列应当改为进入短休息（如果 `short_breaks_enabled` 为 `true`），或直接进入 Work(1)（如果 `short_breaks_enabled` 也为 `false`）。在两种情况下，`work_round_number` 都应当在该边界重置为 1，以保留循环结构。
 
-On the very first round of a session (or after a reset), `previous_round_type` SHALL be an empty string `""` to indicate there was no preceding round.
+#### 场景：长休息禁用 — 在长休息点替换为短休息
 
-This field allows the frontend to distinguish contextually different transitions — for example, a Work round that follows a break ("Break over — focus time!") versus a Work round that follows another Work round ("Focus time!") when short breaks are disabled.
+- **当** `long_breaks_enabled` 为 `false`
+- **且** `short_breaks_enabled` 为 `true`
+- **且** 一个工作轮次在长休息点完成
+- **则** 下一个轮次应当为短休息
+- **且** 该短休息完成后 `work_round_number` 应当重置为 1
 
-#### Scenario: previous_round_type reflects the preceding round
+#### 场景：长休息禁用 — 两种休息都禁用时循环重置
 
-- **WHEN** a ShortBreak round transitions to a Work round
-- **THEN** `previous_round_type` in the emitted `TimerSnapshot` SHALL be `"short-break"`
+- **当** `long_breaks_enabled` 为 `false`
+- **且** `short_breaks_enabled` 为 `false`
+- **且** 一个工作轮次在长休息点完成
+- **则** 下一个轮次应当为工作轮次，且 `work_round_number` 重置为 1
 
-#### Scenario: Work-to-Work transition when short breaks disabled
+#### 场景：长休息禁用 — 在长休息点之前短休息仍然触发
 
-- **WHEN** `short_breaks_enabled` is `false`
-- **AND** a Work round transitions directly to the next Work round
-- **THEN** `previous_round_type` in the emitted `TimerSnapshot` SHALL be `"work"`
+- **当** `long_breaks_enabled` 为 `false`
+- **且** `short_breaks_enabled` 为 `true`
+- **且** 一个工作轮次在长休息点之前完成
+- **则** 下一个轮次应当照常为短休息
 
-#### Scenario: previous_round_type is empty on first round
+#### 场景：两种休息都禁用 — 纯工作循环
 
-- **WHEN** the timer has just started or been reset
-- **AND** the first round begins
-- **THEN** `previous_round_type` SHALL be `""`
-
----
-
-### Requirement: Context-aware work notifications
-
-The frontend SHALL use `previous_round_type` from `TimerSnapshot` to select the appropriate notification text when a Work round begins:
-
-- If `previous_round_type` is `"short-break"` or `"long-break"`: use the break-over notification copy (e.g., "Break over — focus time!")
-- If `previous_round_type` is `"work"` or `""`: use a neutral work-start notification copy (e.g., "Focus time!")
-
-The two message variants SHALL be distinct localisation keys so they can be translated independently.
-
-#### Scenario: Notification after a break
-
-- **WHEN** a Work round begins after a ShortBreak or LongBreak
-- **THEN** the desktop notification SHALL use the break-over title and body
-
-#### Scenario: Notification on Work-to-Work transition
-
-- **WHEN** a Work round begins after another Work round (short breaks disabled)
-- **THEN** the desktop notification SHALL use the work-start title and body (not the break-over copy)
-
-#### Scenario: Notification on first work round
-
-- **WHEN** the very first Work round of a session begins (`previous_round_type` is `""`)
-- **THEN** the desktop notification SHALL use the work-start title and body
+- **当** `short_breaks_enabled` 为 `false`
+- **且** `long_breaks_enabled` 为 `false`
+- **则** 序列应当完全由工作轮次组成
+- **且** `work_round_number` 每轮递增，到达 `work_rounds_total` 时重置为 1
 
 ---
 
-### Requirement: Session work count
+### 需求：TimerSnapshot 携带前一轮次类型
 
-`SequenceState` SHALL expose a `session_work_count: u32` field that starts at 1 and increments by 1 each time `advance()` enters a Work round. Unlike `work_round_number`, it SHALL never reset at cycle boundaries — only a call to `reset()` returns it to 1. It is included in `TimerSnapshot` and surfaced to the frontend as a session counter.
+`TimerSnapshot` 应当包含 `previous_round_type: String` 字段，记录当前轮次开始前活跃的轮次类型。值应当为 `"work"`、`"short-break"` 或 `"long-break"` 之一。
 
-#### Scenario: session_work_count increments across cycle boundaries
+在会话的第一个轮次（或重置后），`previous_round_type` 应当为空字符串 `""`，表示没有前置轮次。
 
-- **WHEN** `long_breaks_enabled` is `false`
-- **AND** multiple work rounds complete across what would have been a long-break boundary
-- **THEN** `session_work_count` SHALL continue incrementing without resetting
+该字段使前端能够区分上下文不同的转换 — 例如，休息后的工作轮次（"休息结束 — 专注时间！"）与另一个工作轮次后的工作轮次（短休息禁用时的"专注时间！"）。
 
-#### Scenario: session_work_count resets on timer reset
+#### 场景：previous_round_type 反映前一个轮次
 
-- **WHEN** the user triggers a timer reset
-- **THEN** `session_work_count` SHALL be reset to 1
+- **当** 一个短休息轮次转换到工作轮次
+- **则** 发出的 `TimerSnapshot` 中 `previous_round_type` 应当为 `"short-break"`
 
-#### Scenario: Round counter display adapts to long_breaks_enabled
+#### 场景：短休息禁用时工作到工作的转换
 
-- **WHEN** `long_breaks_enabled` is `true`
-- **THEN** the round counter SHALL display `work_round_number / work_rounds_total`
-- **WHEN** `long_breaks_enabled` is `false`
-- **THEN** the round counter SHALL display a localised "round N" label using `session_work_count`
+- **当** `short_breaks_enabled` 为 `false`
+- **且** 一个工作轮次直接转换到下一个工作轮次
+- **则** 发出的 `TimerSnapshot` 中 `previous_round_type` 应当为 `"work"`
+
+#### 场景：第一个轮次时 previous_round_type 为空
+
+- **当** 计时器刚启动或被重置
+- **且** 第一个轮次开始
+- **则** `previous_round_type` 应当为 `""`
+
+---
+
+### 需求：上下文感知的工作通知
+
+前端应当使用 `TimerSnapshot` 中的 `previous_round_type` 来选择工作轮次开始时的适当通知文本：
+
+- 如果 `previous_round_type` 为 `"short-break"` 或 `"long-break"`：使用休息结束的通知文案（如"休息结束 — 专注时间！"）
+- 如果 `previous_round_type` 为 `"work"` 或 `""`：使用中性的工作开始通知文案（如"专注时间！"）
+
+两种消息变体应当是不同的本地化键，以便可以独立翻译。
+
+#### 场景：休息后的通知
+
+- **当** 一个工作轮次在短休息或长休息之后开始
+- **则** 桌面通知应当使用休息结束的标题和正文
+
+#### 场景：工作到工作转换时的通知
+
+- **当** 一个工作轮次在另一个工作轮次之后开始（短休息禁用）
+- **则** 桌面通知应当使用工作开始的标题和正文（而非休息结束文案）
+
+#### 场景：第一个工作轮次的通知
+
+- **当** 会话的第一个工作轮次开始（`previous_round_type` 为 `""`）
+- **则** 桌面通知应当使用工作开始的标题和正文
+
+---
+
+### 需求：会话工作计数
+
+`SequenceState` 应当暴露一个 `session_work_count: u32` 字段，初始为 1，每次 `advance()` 进入工作轮次时加 1。与 `work_round_number` 不同，它在循环边界时永远不会重置 — 只有调用 `reset()` 才将其恢复为 1。它包含在 `TimerSnapshot` 中，并在前端作为会话计数器展示。
+
+#### 场景：session_work_count 跨循环边界递增
+
+- **当** `long_breaks_enabled` 为 `false`
+- **且** 多个工作轮次跨越了本应是长休息边界的位置完成
+- **则** `session_work_count` 应当继续递增而不重置
+
+#### 场景：计时器重置时 session_work_count 重置
+
+- **当** 用户触发计时器重置
+- **则** `session_work_count` 应当重置为 1
+
+#### 场景：轮次计数器显示根据 long_breaks_enabled 自适应
+
+- **当** `long_breaks_enabled` 为 `true`
+- **则** 轮次计数器应当显示 `work_round_number / work_rounds_total`
+- **当** `long_breaks_enabled` 为 `false`
+- **则** 轮次计数器应当使用 `session_work_count` 显示本地化的"第 N 轮"标签

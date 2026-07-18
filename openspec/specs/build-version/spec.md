@@ -1,79 +1,79 @@
-## ADDED Requirements
+## 新增需求
 
-### Requirement: Build version string baked in at compile time
+### 需求：构建版本字符串在编译时烘焙
 
-The system SHALL compute a semver-conformant build version string during `cargo build` by invoking `git describe --tags --long --always --dirty` in `build.rs` and emitting the result as the compile-time environment variable `APP_BUILD_VERSION`. The full commit SHA SHALL be emitted separately as `APP_BUILD_SHA` via `git rev-parse HEAD`.
+系统应当在 `cargo build` 期间通过在 `build.rs` 中调用 `git describe --tags --long --always --dirty` 计算一个符合 semver 的构建版本字符串，并将结果作为编译时环境变量 `APP_BUILD_VERSION` 发出。完整的提交 SHA 应当通过 `git rev-parse HEAD` 单独作为 `APP_BUILD_SHA` 发出。
 
-#### Scenario: Dev build (commits since last tag)
+#### 场景：开发构建（距最近标签有若干提交）
 
-- **WHEN** the binary is compiled from a commit that is N > 0 commits after the most recent tag
-- **THEN** `APP_BUILD_VERSION` SHALL be `{base}-dev.{N}+{short-sha}` (e.g. `1.0.0-dev.80+20b2d87`)
+- **当** 二进制文件从距最近标签 N > 0 个提交的位置编译
+- **则** `APP_BUILD_VERSION` 应当为 `{base}-dev.{N}+{short-sha}`（如 `1.0.0-dev.80+20b2d87`）
 
-#### Scenario: Release build (on exact tag)
+#### 场景：发布构建（精确在标签位置）
 
-- **WHEN** the binary is compiled from a commit that is exactly at a tag
-- **THEN** `APP_BUILD_VERSION` SHALL be `{base}+{short-sha}` (e.g. `1.0.0+20b2d87`)
+- **当** 二进制文件从精确位于标签的提交编译
+- **则** `APP_BUILD_VERSION` 应当为 `{base}+{short-sha}`（如 `1.0.0+20b2d87`）
 
-#### Scenario: Dirty working tree
+#### 场景：工作树有未提交更改
 
-- **WHEN** the binary is compiled with uncommitted changes present
-- **THEN** `APP_BUILD_VERSION` SHALL include a `.dirty` suffix in the build metadata (e.g. `1.0.0-dev.80+20b2d87.dirty`)
+- **当** 二进制文件在有未提交更改时编译
+- **则** `APP_BUILD_VERSION` 应当在构建元数据中包含 `.dirty` 后缀（如 `1.0.0-dev.80+20b2d87.dirty`）
 
-#### Scenario: No git history or no tags
+#### 场景：无 git 历史或无标签
 
-- **WHEN** `git describe` fails (no git binary, no tags, detached shallow clone)
-- **THEN** `APP_BUILD_VERSION` SHALL fall back to `{base}+unknown` where `{base}` is read from `tauri.conf.json`
+- **当** `git describe` 失败（无 git 二进制文件、无标签、浅克隆脱离态）
+- **则** `APP_BUILD_VERSION` 应当回退到 `{base}+unknown`，其中 `{base}` 从 `tauri.conf.json` 读取
 
-#### Scenario: Incremental rebuild after a new commit
+#### 场景：新提交后增量重建
 
-- **WHEN** a new commit is made and `cargo build` is run again
-- **THEN** the build script SHALL re-execute and produce an updated `APP_BUILD_VERSION` reflecting the new commit
-
----
-
-### Requirement: Build version exposed via IPC command
-
-The system SHALL provide a Tauri command `app_version` that returns `APP_BUILD_VERSION` as a `&'static str`. This command SHALL be callable by the frontend at any time and returns the compile-time-baked version string.
-
-#### Scenario: Command returns baked version
-
-- **WHEN** the frontend invokes `app_version`
-- **THEN** the response SHALL be the `APP_BUILD_VERSION` string compiled into the binary
+- **当** 进行新提交并再次运行 `cargo build`
+- **则** 构建脚本应当重新执行并生成反映新提交的更新后的 `APP_BUILD_VERSION`
 
 ---
 
-### Requirement: Build version displayed in Settings → About
+### 需求：构建版本通过 IPC 命令暴露
 
-The system SHALL display the build version string in Settings → About in place of the previously hardcoded version constant. The displayed string SHALL use the short-SHA form (7 characters).
+系统应当提供一个 Tauri 命令 `app_version`，返回 `APP_BUILD_VERSION` 作为 `&'static str`。此命令应当可在任何时候由前端调用，返回编译时烘焙的版本字符串。
 
-#### Scenario: Version displayed on About mount
+#### 场景：命令返回烘焙的版本
 
-- **WHEN** the user opens Settings → About
-- **THEN** the version line SHALL show the full semver build string (e.g. `1.0.0-dev.80+20b2d87`)
-
-#### Scenario: Version string is never empty
-
-- **WHEN** `app_version` returns successfully
-- **THEN** the About section SHALL display the returned string; if the call fails, it SHALL fall back to displaying the base version from `tauri.conf.json`
+- **当** 前端调用 `app_version`
+- **则** 响应应当为编译到二进制文件中的 `APP_BUILD_VERSION` 字符串
 
 ---
 
-### Requirement: Full commit SHA logged on startup
+### 需求：构建版本在设置 → 关于中显示
 
-The system SHALL log the full 40-character commit SHA (from `APP_BUILD_SHA`) at INFO level during application startup, alongside the build version string.
+系统应当在设置 → 关于中显示构建版本字符串，取代之前硬编码的版本常量。显示的字符串应当使用短 SHA 格式（7 个字符）。
 
-#### Scenario: Startup log includes full SHA
+#### 场景：关于挂载时显示版本
 
-- **WHEN** the application starts
-- **THEN** the log file SHALL contain an INFO entry with both the build version string and the full commit SHA (e.g. `[app] version=1.0.0-dev.80+20b2d87 sha=20b2d87173870d939002efe84fddff2e944eabd6`)
+- **当** 用户打开设置 → 关于
+- **则** 版本行应当显示完整的 semver 构建字符串（如 `1.0.0-dev.80+20b2d87`）
+
+#### 场景：版本字符串永不为空
+
+- **当** `app_version` 成功返回
+- **则** "关于"部分应当显示返回的字符串；如果调用失败，应当回退显示 `tauri.conf.json` 中的基础版本
 
 ---
 
-### Requirement: CI workflow fetches full git history
+### 需求：启动时记录完整提交 SHA
 
-The CI build workflow SHALL use `fetch-depth: 0` on all checkout steps so that `git describe` has access to full tag history and can compute commit distances in CI-produced artifacts.
+系统应当在应用启动期间以 INFO 级别记录完整的 40 字符提交 SHA（来自 `APP_BUILD_SHA`），连同构建版本字符串。
 
-#### Scenario: CI artifact carries commit count
+#### 场景：启动日志包含完整 SHA
 
-- **WHEN** a binary is built in CI from a commit that is N commits after the last tag
-- **THEN** the binary's `APP_BUILD_VERSION` SHALL include the commit count N (e.g. `1.0.0-dev.80+abc1234`)
+- **当** 应用启动
+- **则** 日志文件应当包含一条 INFO 条目，同时有构建版本字符串和完整提交 SHA（如 `[app] version=1.0.0-dev.80+20b2d87 sha=20b2d87173870d939002efe84fddff2e944eabd6`）
+
+---
+
+### 需求：CI 工作流获取完整 git 历史
+
+CI 构建工作流应当在所有 checkout 步骤使用 `fetch-depth: 0`，以便 `git describe` 可以访问完整的标签历史并在 CI 生成的产物中计算提交距离。
+
+#### 场景：CI 产物携带提交计数
+
+- **当** 在 CI 中从距最近标签 N 个提交的位置构建二进制文件
+- **则** 二进制文件的 `APP_BUILD_VERSION` 应当包含提交计数 N（如 `1.0.0-dev.80+abc1234`）

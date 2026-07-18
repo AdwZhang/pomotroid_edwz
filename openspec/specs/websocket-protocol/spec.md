@@ -1,66 +1,66 @@
-## ADDED Requirements
+## 新增需求
 
-### Requirement: Server broadcasts started event when timer starts
+### 需求：计时器启动时服务器广播 started 事件
 
-When the timer transitions from idle to running, the server SHALL broadcast a `started` message to all connected WebSocket clients carrying the total duration of the round in seconds.
+当计时器从空闲转为运行时，服务器应当向所有已连接的 WebSocket 客户端广播一条 `started` 消息，携带当前轮次的总时长（秒）。
 
-#### Scenario: Client receives started message on first start
+#### 场景：首次启动时客户端收到 started 消息
 
-- **WHEN** the user starts the timer from an idle state
-- **THEN** all connected WebSocket clients SHALL receive `{ "type": "started", "payload": { "total_secs": <n> } }` where `n` is the total duration of the current round
+- **当** 用户从空闲状态启动计时器
+- **则** 所有已连接的 WebSocket 客户端应当收到 `{ "type": "started", "payload": { "total_secs": <n> } }`，其中 `n` 为当前轮次的总时长
 
-#### Scenario: No clients connected on start
+#### 场景：启动时无客户端连接
 
-- **WHEN** the timer starts and no WebSocket clients are connected
-- **THEN** the broadcast SHALL be silently discarded with no error
+- **当** 计时器启动且无 WebSocket 客户端连接
+- **则** 广播应当被静默丢弃，无错误
 
-### Requirement: Server broadcasts paused event when timer pauses
+### 需求：计时器暂停时服务器广播 paused 事件
 
-When the timer transitions to a paused state, the server SHALL broadcast a `paused` message to all connected WebSocket clients carrying the elapsed time in seconds.
+当计时器转为暂停状态时，服务器应当向所有已连接的 WebSocket 客户端广播一条 `paused` 消息，携带已用时间（秒）。
 
-#### Scenario: Client receives paused message on pause
+#### 场景：暂停时客户端收到 paused 消息
 
-- **WHEN** the user pauses a running timer
-- **THEN** all connected WebSocket clients SHALL receive `{ "type": "paused", "payload": { "elapsed_secs": <n> } }` where `n` is the number of seconds elapsed in the current round
+- **当** 用户暂停运行中的计时器
+- **则** 所有已连接的 WebSocket 客户端应当收到 `{ "type": "paused", "payload": { "elapsed_secs": <n> } }`，其中 `n` 为当前轮次已过的秒数
 
-#### Scenario: No clients connected on pause
+#### 场景：暂停时无客户端连接
 
-- **WHEN** the timer is paused and no WebSocket clients are connected
-- **THEN** the broadcast SHALL be silently discarded with no error
+- **当** 计时器被暂停且无 WebSocket 客户端连接
+- **则** 广播应当被静默丢弃，无错误
 
-### Requirement: Server broadcasts resumed event when timer resumes
+### 需求：计时器恢复时服务器广播 resumed 事件
 
-When the timer transitions from paused to running, the server SHALL broadcast a `resumed` message to all connected WebSocket clients carrying the elapsed time in seconds.
+当计时器从暂停转为运行时，服务器应当向所有已连接的 WebSocket 客户端广播一条 `resumed` 消息，携带已用时间（秒）。
 
-#### Scenario: Client receives resumed message on resume
+#### 场景：恢复时客户端收到 resumed 消息
 
-- **WHEN** the user resumes a paused timer
-- **THEN** all connected WebSocket clients SHALL receive `{ "type": "resumed", "payload": { "elapsed_secs": <n> } }` where `n` is the number of seconds elapsed in the current round at the moment of resume
+- **当** 用户恢复已暂停的计时器
+- **则** 所有已连接的 WebSocket 客户端应当收到 `{ "type": "resumed", "payload": { "elapsed_secs": <n> } }`，其中 `n` 为恢复时当前轮次已过的秒数
 
-#### Scenario: No clients connected on resume
+#### 场景：恢复时无客户端连接
 
-- **WHEN** the timer is resumed and no WebSocket clients are connected
-- **THEN** the broadcast SHALL be silently discarded with no error
+- **当** 计时器被恢复且无 WebSocket 客户端连接
+- **则** 广播应当被静默丢弃，无错误
 
-### Requirement: Server broadcasts reset event when timer resets
+### 需求：计时器重置时服务器广播 reset 事件
 
-When the timer resets to idle, the server SHALL broadcast a `reset` message to all connected WebSocket clients with no payload.
+当计时器重置为空闲时，服务器应当向所有已连接的 WebSocket 客户端广播一条 `reset` 消息，无负载。
 
-#### Scenario: Client receives reset message on reset
+#### 场景：重置时客户端收到 reset 消息
 
-- **WHEN** the timer is reset (via stop command or settings change)
-- **THEN** all connected WebSocket clients SHALL receive `{ "type": "reset" }`
+- **当** 计时器被重置（通过停止命令或设置变更）
+- **则** 所有已连接的 WebSocket 客户端应当收到 `{ "type": "reset" }`
 
-#### Scenario: Client requests state after reset
+#### 场景：重置后客户端请求状态
 
-- **WHEN** a client receives a `reset` message and sends `{ "type": "getState" }`
-- **THEN** the server SHALL respond with a `state` message reflecting the idle timer snapshot
+- **当** 客户端收到 `reset` 消息并发送 `{ "type": "getState" }`
+- **则** 服务器应当响应一条反映空闲计时器快照的 `state` 消息
 
-### Requirement: New broadcast message types are additive and non-breaking
+### 需求：新增广播消息类型是增量的且不破坏兼容
 
-The `paused`, `resumed`, and `reset` message types SHALL be added to the existing protocol without altering the `roundChange` or `state` message formats. Clients that do not handle the new types SHALL be unaffected.
+`paused`、`resumed` 和 `reset` 消息类型应当在不改变 `roundChange` 或 `state` 消息格式的情况下添加到现有协议中。不处理新类型的客户端不应受到影响。
 
-#### Scenario: Existing roundChange is unaffected
+#### 场景：现有 roundChange 不受影响
 
-- **WHEN** a round completes and a new round begins
-- **THEN** connected clients SHALL still receive `{ "type": "roundChange", "payload": <TimerSnapshot> }` in the same format as before this change
+- **当** 一个轮次完成且新轮次开始
+- **则** 已连接客户端应当仍以与此变更之前相同的格式收到 `{ "type": "roundChange", "payload": <TimerSnapshot> }`

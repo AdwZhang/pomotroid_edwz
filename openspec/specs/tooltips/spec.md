@@ -1,161 +1,161 @@
-## Purpose
+## 目的
 
-Defines the tooltip component contract, interaction model, and the complete inventory of UI elements that carry a tooltip in both the timer and settings windows.
-
----
-
-## Requirements
-
-### Requirement: Tooltip component
-
-The system SHALL provide a reusable `Tooltip.svelte` component. It SHALL accept the following props:
-
-- `text: string` — the tooltip string (translated by the caller via Paraglide)
-- `delay?: number` — hover delay in milliseconds before the tooltip appears; defaults to `600`
-- `placement?: 'above' | 'below'` — preferred placement; defaults to `'above'`
-
-The trigger element is passed via the default slot.
-
-#### Scenario: Tooltip appears after delay
-
-- **WHEN** the user hovers over a trigger element for at least `delay` milliseconds
-- **THEN** the tooltip SHALL appear with the configured `text`
-
-#### Scenario: Tooltip disappears on mouse leave
-
-- **WHEN** the user moves the mouse away from the trigger element
-- **THEN** the tooltip SHALL disappear immediately
-
-#### Scenario: Instant tooltip with delay=0
-
-- **WHEN** `delay={0}` is set
-- **AND** the user hovers over the trigger element
-- **THEN** the tooltip SHALL appear without any delay
-
-#### Scenario: Tooltip flips placement near viewport edge
-
-- **WHEN** the trigger element is positioned such that the tooltip would overflow the viewport in the preferred direction
-- **THEN** the tooltip SHALL render in the opposite direction
+定义工具提示组件的契约、交互模型，以及在计时器窗口和设置窗口中携带工具提示的 UI 元素完整清单。
 
 ---
 
-### Requirement: Info icon component
+## 需求
 
-The system SHALL provide a `TooltipInfo.svelte` component that renders a styled info icon which, when hovered, shows an instant tooltip (`delay={0}`).
+### 需求：工具提示组件
 
-It SHALL accept:
+系统应当提供一个可复用的 `Tooltip.svelte` 组件。它应当接受以下属性：
 
-- `text: string` — the tooltip string
+- `text: string` — 工具提示字符串（由调用者通过 Paraglide 翻译）
+- `delay?: number` — 鼠标悬停后工具提示出现前的延迟毫秒数；默认 `600`
+- `placement?: 'above' | 'below'` — 首选放置位置；默认 `'above'`
 
-It is intended for use alongside toggle labels in settings to surface contextual notes without cluttering the layout.
+触发元素通过默认插槽传入。
 
-#### Scenario: Info icon shows tooltip immediately on hover
+#### 场景：延迟后工具提示出现
 
-- **WHEN** the user hovers over the info icon
-- **THEN** the tooltip SHALL appear immediately (no delay)
+- **当** 用户将鼠标悬停在触发元素上至少 `delay` 毫秒
+- **则** 工具提示应当以配置的 `text` 出现
 
-#### Scenario: Info icon is visually distinct but unobtrusive
+#### 场景：鼠标离开时工具提示消失
 
-- **WHEN** the info icon is rendered
-- **THEN** it SHALL use `--color-foreground-darker` at rest and `--color-foreground` on hover, keeping it secondary to the adjacent label
+- **当** 用户将鼠标移离触发元素
+- **则** 工具提示应当立即消失
 
----
+#### 场景：delay=0 时即时工具提示
 
-### Requirement: Tooltip inventory — timer window
+- **当** 设置 `delay={0}`
+- **且** 用户将鼠标悬停在触发元素上
+- **则** 工具提示应当无延迟地出现
 
-The following controls in the timer window SHALL have tooltips with the specified i18n keys and delay:
+#### 场景：靠近视口边缘时工具提示翻转位置
 
-| Element              | Location       | i18n key                                                  | Delay  |
-| -------------------- | -------------- | --------------------------------------------------------- | ------ |
-| Settings button      | Titlebar       | `tooltip_settings`                                        | 600 ms |
-| Statistics button    | Titlebar       | `tooltip_statistics`                                      | 600 ms |
-| Restart Round button | Timer controls | `tooltip_restart_round`                                   | 600 ms |
-| Skip button          | Timer controls | `tooltip_skip`                                            | 600 ms |
-| Reset button         | Footer         | `tooltip_reset`                                           | 600 ms |
-| Mute/Unmute button   | Footer         | `tooltip_mute` / `tooltip_unmute`                         | 600 ms |
-| Round indicator      | Footer         | `tooltip_round_counter` / `tooltip_round_counter_session` | 600 ms |
-
-#### Scenario: Reset tooltip communicates consequence
-
-- **WHEN** the user hovers over the Reset button for 600 ms
-- **THEN** the tooltip SHALL display the text for `tooltip_reset`, which communicates that the timer returns to the first work round and clears session progress
-
-#### Scenario: Skip tooltip describes the action
-
-- **WHEN** the user hovers over the Skip button for 600 ms
-- **THEN** the tooltip SHALL display the text for `tooltip_skip`, which communicates that the current round is skipped and the next round begins
-
-#### Scenario: Mute tooltip reflects current state
-
-- **WHEN** the volume is greater than zero and the user hovers the mute button
-- **THEN** the tooltip SHALL display `tooltip_mute`
-- **WHEN** the volume is zero and the user hovers the mute button
-- **THEN** the tooltip SHALL display `tooltip_unmute`
-
-#### Scenario: Round indicator tooltip reflects long-break mode
-
-- **WHEN** long breaks are enabled and the user hovers the round indicator (e.g. "2 / 4")
-- **THEN** the tooltip SHALL display `tooltip_round_counter`, which explains that the number shows the current work round out of the total rounds before a long break
-- **WHEN** long breaks are disabled and the user hovers the round indicator (e.g. "Round 3")
-- **THEN** the tooltip SHALL display `tooltip_round_counter_session`, which explains that the number is a continuous session count that resets only when the timer is reset
+- **当** 触发元素的位置使得工具提示在首选方向会溢出视口
+- **则** 工具提示应当在相反方向渲染
 
 ---
 
-### Requirement: Tooltip inventory — settings window
+### 需求：信息图标组件
 
-The following settings controls SHALL have a `TooltipInfo` icon (instant, no delay) with the specified i18n keys:
+系统应当提供一个 `TooltipInfo.svelte` 组件，渲染一个样式化的信息图标，悬停时显示即时工具提示（`delay={0}`）。
 
-| Setting                          | Section | i18n key                  |
-| -------------------------------- | ------- | ------------------------- |
-| Show in System Tray (Linux only) | System  | `system_tray_gnome_hint`  |
-| Verbose Logging                  | System  | `tooltip_verbose_logging` |
-| WebSocket Server                 | System  | `tooltip_websocket`       |
+它应当接受：
 
-The `TooltipInfo` icon for "Show in System Tray" SHALL only be rendered on Linux (guard: `isLinux`).
+- `text: string` — 工具提示字符串
 
-#### Scenario: GNOME hint shown only on Linux
+用于在设置中的开关标签旁放置，在不混乱布局的情况下展示上下文说明。
 
-- **WHEN** the app is running on Linux
-- **THEN** a `TooltipInfo` icon SHALL appear alongside the "Show in System Tray" toggle label
-- **WHEN** the app is running on macOS or Windows
-- **THEN** no info icon SHALL be shown for that toggle
+#### 场景：悬停时信息图标立即显示工具提示
 
-#### Scenario: Settings info icons show tooltip immediately
+- **当** 用户将鼠标悬停在信息图标上
+- **则** 工具提示应当立即出现（无延迟）
 
-- **WHEN** the user hovers over any `TooltipInfo` icon in the settings window
-- **THEN** the tooltip SHALL appear without delay
+#### 场景：信息图标视觉上独特但不突兀
+
+- **当** 信息图标被渲染
+- **则** 应当在静止时使用 `--color-foreground-darker`，悬停时使用 `--color-foreground`，保持相对于相邻标签的次要地位
 
 ---
 
-### Requirement: Tooltip styling
+### 需求：工具提示清单 — 计时器窗口
 
-Tooltips SHALL be styled as follows:
+计时器窗口中以下控件应当具有指定 i18n 键和延迟的工具提示：
 
-- Background: `--color-background-light` (or a computed fallback if not defined by the theme)
-- Text color: `--color-foreground`
-- Font size: `0.72rem`
-- Border radius: `4px`
-- Max width: `240px`; text wraps
-- A subtle box shadow and border for visual separation
-- A small arrow indicating the trigger element
-- Positioned using `position: fixed` so tooltip is never clipped by overflow containers
+| 元素 | 位置 | i18n 键 | 延迟 |
+| --- | --- | --- | --- |
+| 设置按钮 | 标题栏 | `tooltip_settings` | 600 ms |
+| 统计按钮 | 标题栏 | `tooltip_statistics` | 600 ms |
+| 重启轮次按钮 | 计时器控件 | `tooltip_restart_round` | 600 ms |
+| 跳过按钮 | 计时器控件 | `tooltip_skip` | 600 ms |
+| 重置按钮 | 页脚 | `tooltip_reset` | 600 ms |
+| 静音/取消静音按钮 | 页脚 | `tooltip_mute` / `tooltip_unmute` | 600 ms |
+| 轮次指示器 | 页脚 | `tooltip_round_counter` / `tooltip_round_counter_session` | 600 ms |
 
-Tooltip appearance SHALL adapt to the active theme via CSS custom properties.
+#### 场景：重置工具提示传达后果
 
-#### Scenario: Tooltip uses active theme colors
+- **当** 用户将鼠标悬停在重置按钮上 600 毫秒
+- **则** 工具提示应当显示 `tooltip_reset` 的文本，传达计时器返回第一个工作轮次并清除会话进度
 
-- **WHEN** the user switches themes
-- **THEN** any visible tooltip SHALL immediately reflect the new theme's CSS custom properties
+#### 场景：跳过工具提示描述动作
+
+- **当** 用户将鼠标悬停在跳过按钮上 600 毫秒
+- **则** 工具提示应当显示 `tooltip_skip` 的文本，传达当前轮次被跳过并开始下一轮次
+
+#### 场景：静音工具提示反映当前状态
+
+- **当** 音量大于零且用户悬停静音按钮
+- **则** 工具提示应当显示 `tooltip_mute`
+- **当** 音量为零且用户悬停静音按钮
+- **则** 工具提示应当显示 `tooltip_unmute`
+
+#### 场景：轮次指示器工具提示反映长休息模式
+
+- **当** 长休息已启用且用户悬停轮次指示器（如 "2 / 4"）
+- **则** 工具提示应当显示 `tooltip_round_counter`，解释数字表示长休息前的当前工作轮次占总轮次
+- **当** 长休息已禁用且用户悬停轮次指示器（如 "第 3 轮"）
+- **则** 工具提示应当显示 `tooltip_round_counter_session`，解释数字是连续会话计数，仅在计时器重置时才重置
 
 ---
 
-### Requirement: Accessibility
+### 需求：工具提示清单 — 设置窗口
 
-Tooltip triggers SHALL use `aria-describedby` pointing to the tooltip element's `id` when the tooltip is visible, so screen readers announce the tooltip text alongside the control label.
+以下设置控件应当具有 `TooltipInfo` 图标（即时，无延迟），带有指定的 i18n 键：
 
-#### Scenario: Screen reader announces tooltip text
+| 设置 | 部分 | i18n 键 |
+| --- | --- | --- |
+| 显示在系统托盘（仅 Linux） | 系统 | `system_tray_gnome_hint` |
+| 详细日志 | 系统 | `tooltip_verbose_logging` |
+| WebSocket 服务器 | 系统 | `tooltip_websocket` |
 
-- **WHEN** a tooltip is visible
-- **THEN** the trigger wrapper SHALL have `aria-describedby` set to the tooltip element's `id`
-- **WHEN** the tooltip is hidden
-- **THEN** the `aria-describedby` attribute SHALL be absent
+"显示在系统托盘"的 `TooltipInfo` 图标应当仅在 Linux 上渲染（守卫条件：`isLinux`）。
+
+#### 场景：GNOME 提示仅在 Linux 上显示
+
+- **当** 应用在 Linux 上运行
+- **则** "显示在系统托盘"开关标签旁应当出现 `TooltipInfo` 图标
+- **当** 应用在 macOS 或 Windows 上运行
+- **则** 该开关不应显示信息图标
+
+#### 场景：设置信息图标立即显示工具提示
+
+- **当** 用户将鼠标悬停在设置窗口中任何 `TooltipInfo` 图标上
+- **则** 工具提示应当无延迟地出现
+
+---
+
+### 需求：工具提示样式
+
+工具提示应当按如下样式设置：
+
+- 背景：`--color-background-light`（如果主题未定义则使用计算的回退值）
+- 文本颜色：`--color-foreground`
+- 字体大小：`0.72rem`
+- 圆角：`4px`
+- 最大宽度：`240px`；文本换行
+- 细微的阴影和边框用于视觉分隔
+- 小箭头指示触发元素
+- 使用 `position: fixed` 定位，使工具提示永远不会被溢出容器裁剪
+
+工具提示外观应当通过 CSS 自定义属性适应活跃主题。
+
+#### 场景：工具提示使用活跃主题颜色
+
+- **当** 用户切换主题
+- **则** 任何可见的工具提示应当立即反映新主题的 CSS 自定义属性
+
+---
+
+### 需求：无障碍
+
+工具提示触发器在工具提示可见时应当使用 `aria-describedby` 指向工具提示元素的 `id`，以便屏幕阅读器在控件标签旁播报工具提示文本。
+
+#### 场景：屏幕阅读器播报工具提示文本
+
+- **当** 工具提示可见
+- **则** 触发包装器应当设置 `aria-describedby` 为工具提示元素的 `id`
+- **当** 工具提示隐藏
+- **则** `aria-describedby` 属性应当不存在

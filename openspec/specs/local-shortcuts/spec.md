@@ -1,118 +1,118 @@
-### Requirement: Local shortcuts are active while any app window has focus
+### 需求：本地快捷键在任何应用窗口聚焦时激活
 
-The system SHALL handle a configurable set of keyboard shortcuts that fire when the user presses a bound key while any Pomotroid window (main or settings) has OS focus. Local shortcuts SHALL NOT fire when the focus is inside a text input element.
+系统应当处理一组可配置的键盘快捷键，当用户在任何 Pomotroid 窗口（主窗口或设置窗口）拥有操作系统焦点时按下绑定键即触发。当焦点在文本输入元素内时，本地快捷键不应触发。
 
-#### Scenario: Shortcut fires in main window
+#### 场景：在主窗口中触发快捷键
 
-- **WHEN** the main timer window has OS focus
-- **AND** the user presses the key bound to pause/resume
-- **THEN** the timer SHALL toggle between running and paused
+- **当** 主计时器窗口拥有操作系统焦点
+- **且** 用户按下绑定到暂停/恢复的键
+- **则** 计时器应当在运行和暂停之间切换
 
-#### Scenario: Shortcut fires in settings window
+#### 场景：在设置窗口中触发快捷键
 
-- **WHEN** the settings window has OS focus
-- **AND** the user presses the key bound to volume up
-- **THEN** the volume SHALL increase by 5%
+- **当** 设置窗口拥有操作系统焦点
+- **且** 用户按下绑定到音量增大的键
+- **则** 音量应当增加 5%
 
-#### Scenario: Shortcut does not fire when input is focused
+#### 场景：输入聚焦时快捷键不触发
 
-- **WHEN** a text input or shortcut capture field has keyboard focus
-- **AND** the user presses a key that is bound to a local shortcut
-- **THEN** the shortcut action SHALL NOT execute and the keypress SHALL be handled normally by the input
-
----
-
-### Requirement: Default local shortcut bindings
-
-The system SHALL provide the following default local shortcut bindings on all platforms:
-
-- Pause/Resume: Space
-- Reset current round: ArrowLeft
-- Skip round: ArrowRight
-- Volume down: ArrowDown
-- Volume up: ArrowUp
-- Mute toggle: m
-- Fullscreen toggle: F11
-
-#### Scenario: First launch defaults
-
-- **WHEN** the application is launched for the first time with no existing settings
-- **THEN** all seven local shortcut bindings SHALL match the defaults listed above
-
-#### Scenario: Existing bindings preserved across launches
-
-- **WHEN** the user has customized one or more local shortcut bindings and restarts the app
-- **THEN** the customized bindings SHALL be restored from the database
+- **当** 文本输入或快捷键捕获字段拥有键盘焦点
+- **且** 用户按下绑定到本地快捷键的键
+- **则** 快捷键动作不应执行，按键应当由输入正常处理
 
 ---
 
-### Requirement: Local shortcut actions
+### 需求：默认本地快捷键绑定
 
-Each local shortcut SHALL invoke a specific action:
+系统应当在所有平台上提供以下默认本地快捷键绑定：
 
-- **Pause/Resume**: toggles the timer between running and paused (same as `timer_toggle` IPC command)
-- **Reset current round**: resets the current timer round to its full duration without advancing sequence (same as `timer_reset` IPC command)
-- **Skip round**: ends the current round and advances to the next in sequence (same as `timer_skip` IPC command)
-- **Volume down**: decreases volume by 5 percentage points, clamped to 0.0
-- **Volume up**: increases volume by 5 percentage points, clamped to 1.0
-- **Mute toggle**: toggles the volume between 0.0 and the last non-zero volume level
-- **Fullscreen toggle**: toggles the main window between fullscreen and its previous size/position
+- 暂停/恢复：Space
+- 重置当前轮次：ArrowLeft
+- 跳过轮次：ArrowRight
+- 音量减小：ArrowDown
+- 音量增大：ArrowUp
+- 静音切换：m
+- 全屏切换：F11
 
-#### Scenario: Volume up at maximum
+#### 场景：首次启动默认值
 
-- **WHEN** the volume is at 1.0 (100%)
-- **AND** the user presses the volume up shortcut
-- **THEN** the volume SHALL remain at 1.0 (no overflow)
+- **当** 应用首次启动且无现有设置
+- **则** 所有七个本地快捷键绑定应当匹配上述默认值
 
-#### Scenario: Volume down at minimum
+#### 场景：现有绑定跨启动保留
 
-- **WHEN** the volume is at 0.0 (0%)
-- **AND** the user presses the volume down shortcut
-- **THEN** the volume SHALL remain at 0.0 (no underflow)
-
-#### Scenario: Mute restores previous volume
-
-- **WHEN** the volume is at 0.6 (60%)
-- **AND** the user presses the mute shortcut
-- **THEN** the volume SHALL be set to 0.0
-- **WHEN** the user presses the mute shortcut again
-- **THEN** the volume SHALL be restored to 0.6
-
-#### Scenario: Fullscreen toggle
-
-- **WHEN** the main window is in windowed mode
-- **AND** the user presses the fullscreen shortcut
-- **THEN** the main window SHALL enter fullscreen mode
-- **WHEN** the user presses the fullscreen shortcut again
-- **THEN** the main window SHALL exit fullscreen and return to windowed mode
+- **当** 用户自定义了一个或多个本地快捷键绑定并重启应用
+- **则** 自定义绑定应当从数据库恢复
 
 ---
 
-### Requirement: Local shortcuts are re-mappable in Settings
+### 需求：本地快捷键动作
 
-The system SHALL allow users to change any local shortcut binding via Settings → Shortcuts. Each binding field SHALL record the next keypress (excluding modifier-only keys) as the new binding. The new binding SHALL be saved immediately and take effect without restart.
+每个本地快捷键应当调用一个特定动作：
 
-#### Scenario: User rebinds pause/resume
+- **暂停/恢复**：在运行和暂停之间切换计时器（同 `timer_toggle` IPC 命令）
+- **重置当前轮次**：将当前计时器轮次重置为完整时长，不推进序列（同 `timer_reset` IPC 命令）
+- **跳过轮次**：结束当前轮次并推进到序列中的下一个（同 `timer_skip` IPC 命令）
+- **音量减小**：减少 5 个百分点，下限为 0.0
+- **音量增大**：增加 5 个百分点，上限为 1.0
+- **静音切换**：在 0.0 和上一个非零音量级别之间切换
+- **全屏切换**：在全屏和之前的尺寸/位置之间切换主窗口
 
-- **WHEN** the user clicks the pause/resume local shortcut field in Settings → Shortcuts
-- **AND** presses the P key
-- **THEN** the binding SHALL be updated to "p" in the database
-- **AND** pressing P while the main window is focused SHALL toggle the timer
+#### 场景：最大时音量增大
 
-#### Scenario: Binding takes effect immediately
+- **当** 音量为 1.0（100%）
+- **且** 用户按下音量增大快捷键
+- **则** 音量应当保持在 1.0（无溢出）
 
-- **WHEN** the user saves a new local shortcut binding
-- **AND** the settings window remains open
-- **THEN** pressing the newly bound key SHALL immediately trigger the corresponding action (no restart required)
+#### 场景：最小时音量减小
+
+- **当** 音量为 0.0（0%）
+- **且** 用户按下音量减小快捷键
+- **则** 音量应当保持在 0.0（无下溢）
+
+#### 场景：静音恢复之前的音量
+
+- **当** 音量为 0.6（60%）
+- **且** 用户按下静音快捷键
+- **则** 音量应当设为 0.0
+- **当** 用户再次按下静音快捷键
+- **则** 音量应当恢复到 0.6
+
+#### 场景：全屏切换
+
+- **当** 主窗口处于窗口模式
+- **且** 用户按下全屏快捷键
+- **则** 主窗口应当进入全屏模式
+- **当** 用户再次按下全屏快捷键
+- **则** 主窗口应当退出全屏并恢复窗口模式
 
 ---
 
-### Requirement: Reset All Settings restores local shortcut defaults
+### 需求：本地快捷键可在设置中重新映射
 
-When the user resets all settings to defaults, all local shortcut bindings SHALL be reverted to their default values.
+系统应当允许用户通过设置 → 快捷键更改任何本地快捷键绑定。每个绑定字段应当记录下一次按键（排除仅修饰键）作为新绑定。新绑定应当立即保存并生效，无需重启。
 
-#### Scenario: Reset restores default bindings
+#### 场景：用户重新绑定暂停/恢复
 
-- **WHEN** the user triggers "Reset All Settings" via the Settings menu
-- **THEN** all seven local shortcut bindings SHALL revert to their defaults (Space, ArrowLeft, ArrowRight, ArrowDown, ArrowUp, m, F11)
-- **AND** any custom bindings the user had configured SHALL be discarded
+- **当** 用户点击设置 → 快捷键中的暂停/恢复本地快捷键字段
+- **且** 按下 P 键
+- **则** 绑定应当在数据库中更新为 "p"
+- **且** 在主窗口聚焦时按 P 应当切换计时器
+
+#### 场景：绑定立即生效
+
+- **当** 用户保存新的本地快捷键绑定
+- **且** 设置窗口保持打开
+- **则** 按下新绑定的键应当立即触发对应动作（无需重启）
+
+---
+
+### 需求：重置所有设置恢复本地快捷键默认值
+
+当用户将所有设置重置为默认值时，所有本地快捷键绑定应当恢复为默认值。
+
+#### 场景：重置恢复默认绑定
+
+- **当** 用户通过设置菜单触发"重置所有设置"
+- **则** 所有七个本地快捷键绑定应当恢复为默认值（Space、ArrowLeft、ArrowRight、ArrowDown、ArrowUp、m、F11）
+- **且** 用户之前配置的任何自定义绑定应当被丢弃

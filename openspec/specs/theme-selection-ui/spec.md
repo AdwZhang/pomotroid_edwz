@@ -1,85 +1,85 @@
-## Purpose
+## 目的
 
-Defines the collapsible accordion UI for selecting light and dark themes in the Appearance settings section, including trigger row previews, active-mode indicators, checkmark behavior, and interaction isolation.
+定义外观设置部分中用于选择浅色和深色主题的可折叠手风琴 UI，包括触发行预览、活跃模式指示器、勾选标记行为和交互隔离。
 
-## Requirements
+## 需求
 
-### Requirement: Collapsible theme picker rows
+### 需求：可折叠主题选择器行
 
-The Appearance section SHALL present each theme picker (Light, Dark) as a collapsible row. Each row SHALL have a trigger header that is always visible and an expandable list of theme cards. At most one picker SHALL be expanded at a time (accordion behavior). Both pickers SHALL be collapsed by default when the settings window opens.
+外观部分应当将每个主题选择器（浅色、深色）呈现为可折叠行。每行应当有一个始终可见的触发头部和可展开的主题卡片列表。同一时间最多只有一个选择器展开（手风琴行为）。设置窗口打开时两个选择器默认都应折叠。
 
-#### Scenario: Light picker expands on trigger click
+#### 场景：点击触发器展开浅色选择器
 
-- **WHEN** the user clicks the Light picker trigger
-- **THEN** the light theme list becomes visible and the dark theme list collapses if open
+- **当** 用户点击浅色选择器触发器
+- **则** 浅色主题列表可见，如果深色主题列表打开则折叠
 
-#### Scenario: Dark picker expands on trigger click
+#### 场景：点击触发器展开深色选择器
 
-- **WHEN** the user clicks the Dark picker trigger
-- **THEN** the dark theme list becomes visible and the light theme list collapses if open
+- **当** 用户点击深色选择器触发器
+- **则** 深色主题列表可见，浅色主题列表折叠
 
-#### Scenario: Clicking open trigger collapses it
+#### 场景：点击已打开的触发器将其折叠
 
-- **WHEN** the user clicks the trigger of the currently open picker
-- **THEN** that picker collapses and no picker is open
+- **当** 用户点击当前已打开选择器的触发器
+- **则** 该选择器折叠，没有选择器打开
 
-#### Scenario: Both pickers collapsed on open
+#### 场景：打开时两个选择器都折叠
 
-- **WHEN** the settings window opens
-- **THEN** both the light and dark pickers are collapsed
+- **当** 设置窗口打开
+- **则** 浅色和深色选择器都处于折叠状态
 
-### Requirement: Trigger row preview
+### 需求：触发行预览
 
-Each picker's trigger header SHALL display the currently configured theme for that picker as an inline preview consisting of the theme name and a color chip. The color chip SHALL show the three round-type swatches (focus, short break, long break) on the theme's own background color.
+每个选择器的触发头部应当将当前为该选择器配置的主题显示为内联预览，包括主题名称和色彩色块。色彩色块应当在主题自身背景色上显示三种轮次类型的色样（专注、短休息、长休息）。
 
-#### Scenario: Light trigger shows configured light theme
+#### 场景：浅色触发器显示配置的浅色主题
 
-- **WHEN** the settings window opens or `theme_light` changes
-- **THEN** the light picker trigger displays the `theme_light` name and its color chip
+- **当** 设置窗口打开或 `theme_light` 变更
+- **则** 浅色选择器触发器显示 `theme_light` 名称及其色彩色块
 
-#### Scenario: Dark trigger shows configured dark theme
+#### 场景：深色触发器显示配置的深色主题
 
-- **WHEN** the settings window opens or `theme_dark` changes
-- **THEN** the dark picker trigger displays the `theme_dark` name and its color chip
+- **当** 设置窗口打开或 `theme_dark` 变更
+- **则** 深色选择器触发器显示 `theme_dark` 名称及其色彩色块
 
-### Requirement: Active-mode indicator on trigger
+### 需求：触发器上的活跃模式指示器
 
-The trigger row for the currently active picker SHALL carry a visible "active" indicator. When the active picker changes (due to a mode selector change or OS scheme change), the indicator SHALL update immediately.
+当前活跃选择器的触发行应当带有可见的"活跃"指示器。当活跃选择器变更时（由于模式选择器变更或操作系统方案变更），指示器应当立即更新。
 
-#### Scenario: Active indicator on light trigger in light mode
+#### 场景：浅色模式下浅色触发器上的活跃指示器
 
-- **WHEN** `theme_mode` is `"light"`
-- **THEN** the light picker trigger shows the active indicator and the dark trigger does not
+- **当** `theme_mode` 为 `"light"`
+- **则** 浅色选择器触发器显示活跃指示器，深色触发器不显示
 
-#### Scenario: Active indicator on dark trigger in dark mode
+#### 场景：深色模式下深色触发器上的活跃指示器
 
-- **WHEN** `theme_mode` is `"dark"`
-- **THEN** the dark picker trigger shows the active indicator and the light trigger does not
+- **当** `theme_mode` 为 `"dark"`
+- **则** 深色选择器触发器显示活跃指示器，浅色触发器不显示
 
-#### Scenario: Active indicator follows OS in auto mode
+#### 场景：自动模式下活跃指示器跟随操作系统
 
-- **WHEN** `theme_mode` is `"auto"` and the OS switches from light to dark
-- **THEN** the active indicator moves from the light trigger to the dark trigger
+- **当** `theme_mode` 为 `"auto"` 且操作系统从浅色切换到深色
+- **则** 活跃指示器从浅色触发器移到深色触发器
 
-### Requirement: Selected theme checkmark
+### 需求：选中主题勾选标记
 
-Within an expanded picker list, the configured theme SHALL display a checkmark regardless of whether that picker is currently active.
+在展开的选择器列表中，已配置的主题应当显示勾选标记，无论该选择器当前是否活跃。
 
-#### Scenario: Checkmark on configured theme in active picker
+#### 场景：活跃选择器中已配置主题的勾选标记
 
-- **WHEN** the light picker is expanded and `theme_mode` is `"light"`
-- **THEN** the theme matching `theme_light` shows a checkmark
+- **当** 浅色选择器展开且 `theme_mode` 为 `"light"`
+- **则** 匹配 `theme_light` 的主题显示勾选标记
 
-#### Scenario: Checkmark on configured theme in inactive picker
+#### 场景：非活跃选择器中已配置主题的勾选标记
 
-- **WHEN** the dark picker is expanded and `theme_mode` is `"light"`
-- **THEN** the theme matching `theme_dark` still shows a checkmark
+- **当** 深色选择器展开且 `theme_mode` 为 `"light"`
+- **则** 匹配 `theme_dark` 的主题仍显示勾选标记
 
-### Requirement: Picker interaction does not reset theme selection
+### 需求：选择器交互不重置主题选择
 
-Expanding, collapsing, or switching between pickers SHALL NOT change `theme_light`, `theme_dark`, `theme_mode`, or the currently applied theme.
+展开、折叠或在选择器之间切换不应改变 `theme_light`、`theme_dark`、`theme_mode` 或当前应用的主题。
 
-#### Scenario: Toggling pickers preserves applied theme
+#### 场景：切换选择器保留应用的主题
 
-- **WHEN** the user opens and closes the dark picker without selecting a theme
-- **THEN** the currently applied theme, `theme_light`, `theme_dark`, and `theme_mode` are all unchanged
+- **当** 用户打开并关闭深色选择器而未选择主题
+- **则** 当前应用的主题、`theme_light`、`theme_dark` 和 `theme_mode` 都保持不变

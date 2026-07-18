@@ -1,103 +1,103 @@
-### Requirement: Tray menu exposes timer control actions
+### 需求：托盘菜单暴露计时器控制操作
 
-The tray context menu SHALL include three timer control items — Toggle (Start/Pause/Resume), Skip, and Reset Round — positioned above the existing Show and Exit items.
+托盘上下文菜单应当包含三个计时器控制项 — 切换（开始/暂停/恢复）、跳过和重置轮次 — 位于现有的显示和退出项之上。
 
-#### Scenario: Menu items are present when tray is created
+#### 场景：托盘创建时菜单项存在
 
-- **WHEN** the tray icon is created
-- **THEN** the menu SHALL contain items with ids "toggle", "skip", and "reset-round"
+- **当** 托盘图标被创建
+- **则** 菜单应当包含 id 为 "toggle"、"skip" 和 "reset-round" 的项
 
-#### Scenario: Timer control items appear above Show and Exit
+#### 场景：计时器控制项出现在显示和退出之上
 
-- **WHEN** the user opens the tray context menu
-- **THEN** the toggle, skip, and reset-round items SHALL appear before the separator, Show, and Exit items
+- **当** 用户打开托盘上下文菜单
+- **则** 切换、跳过和重置轮次项应当出现在分隔符、显示和退出项之前
 
-### Requirement: Toggle item label reflects current timer state
+### 需求：切换项标签反映当前计时器状态
 
-The toggle item SHALL display "Start" when the timer is idle, "Pause" when it is running, and "Resume" when it is paused.
+切换项在计时器空闲时应当显示"开始"，运行时显示"暂停"，已暂停时显示"恢复"。
 
-#### Scenario: Label is "Start" on initial tray creation
+#### 场景：初始托盘创建时标签为"开始"
 
-- **WHEN** the tray icon is first created and the timer is idle
-- **THEN** the toggle item label SHALL be "Start"
+- **当** 托盘图标首次创建且计时器空闲
+- **则** 切换项标签应当为"Start"
 
-#### Scenario: Label changes to "Pause" when timer starts
+#### 场景：计时器启动时标签变为"暂停"
 
-- **WHEN** the timer transitions from idle or paused to running
-- **THEN** the toggle item label SHALL update to "Pause"
+- **当** 计时器从空闲或已暂停转为运行
+- **则** 切换项标签应当更新为"Pause"
 
-#### Scenario: Label changes to "Resume" when timer is paused
+#### 场景：计时器暂停时标签变为"恢复"
 
-- **WHEN** the timer is paused
-- **THEN** the toggle item label SHALL update to "Resume"
+- **当** 计时器被暂停
+- **则** 切换项标签应当更新为"Resume"
 
-#### Scenario: Label resets to "Start" when timer is reset
+#### 场景：计时器重置时标签恢复为"开始"
 
-- **WHEN** the timer is reset to idle
-- **THEN** the toggle item label SHALL update to "Start"
+- **当** 计时器被重置为空闲
+- **则** 切换项标签应当更新为"Start"
 
-### Requirement: Skip and Reset Round are disabled when the timer is idle
+### 需求：计时器空闲时跳过和重置轮次被禁用
 
-Skip and Reset Round SHALL be enabled only when the timer is running or paused.
+跳过和重置轮次仅在计时器运行或暂停时才应启用。
 
-#### Scenario: Skip and Reset Round disabled on initial tray creation
+#### 场景：初始托盘创建时跳过和重置轮次被禁用
 
-- **WHEN** the tray icon is first created and the timer is idle
-- **THEN** the skip and reset-round items SHALL be disabled (non-interactive)
+- **当** 托盘图标首次创建且计时器空闲
+- **则** 跳过和重置轮次项应当被禁用（不可交互）
 
-#### Scenario: Skip and Reset Round enabled when timer is running
+#### 场景：计时器运行时跳过和重置轮次启用
 
-- **WHEN** the timer transitions to running
-- **THEN** the skip and reset-round items SHALL become enabled
+- **当** 计时器转为运行
+- **则** 跳过和重置轮次项应当变为启用
 
-#### Scenario: Skip and Reset Round enabled when timer is paused
+#### 场景：计时器暂停时跳过和重置轮次启用
 
-- **WHEN** the timer is paused
-- **THEN** the skip and reset-round items SHALL remain enabled
+- **当** 计时器被暂停
+- **则** 跳过和重置轮次项应当保持启用
 
-#### Scenario: Skip and Reset Round disabled after reset
+#### 场景：重置后跳过和重置轮次被禁用
 
-- **WHEN** the timer is reset to idle
-- **THEN** the skip and reset-round items SHALL become disabled
+- **当** 计时器被重置为空闲
+- **则** 跳过和重置轮次项应当变为禁用
 
-### Requirement: Toggle item dispatches the correct timer command
+### 需求：切换项调度正确的计时器命令
 
-Clicking the toggle item SHALL call `timer.toggle()`, which starts the timer if idle, pauses it if running, or resumes it if paused.
+点击切换项应当调用 `timer.toggle()`，如果空闲则启动计时器，如果运行则暂停，如果已暂停则恢复。
 
-#### Scenario: Toggle starts an idle timer
+#### 场景：切换启动空闲计时器
 
-- **WHEN** the timer is idle and the user clicks the toggle item
-- **THEN** the timer SHALL start running
+- **当** 计时器空闲且用户点击切换项
+- **则** 计时器应当开始运行
 
-#### Scenario: Toggle pauses a running timer
+#### 场景：切换暂停运行中的计时器
 
-- **WHEN** the timer is running and the user clicks the toggle item
-- **THEN** the timer SHALL pause
+- **当** 计时器运行中且用户点击切换项
+- **则** 计时器应当暂停
 
-#### Scenario: Toggle resumes a paused timer
+#### 场景：切换恢复已暂停的计时器
 
-- **WHEN** the timer is paused and the user clicks the toggle item
-- **THEN** the timer SHALL resume running
+- **当** 计时器已暂停且用户点击切换项
+- **则** 计时器应当恢复运行
 
-### Requirement: Skip item advances to the next round
+### 需求：跳过项推进到下一轮次
 
-Clicking the skip item SHALL call `timer.skip()`, immediately completing the current round and advancing the sequence.
+点击跳过项应当调用 `timer.skip()`，立即完成当前轮次并推进序列。
 
-#### Scenario: Skip advances the round
+#### 场景：跳过推进轮次
 
-- **WHEN** the timer is running or paused and the user clicks the skip item
-- **THEN** the current round SHALL complete and the sequence SHALL advance to the next round
+- **当** 计时器运行或暂停中且用户点击跳过项
+- **则** 当前轮次应当完成，序列应当推进到下一轮次
 
-### Requirement: Reset Round item resets the current round only
+### 需求：重置轮次项仅重置当前轮次
 
-Clicking the reset-round item SHALL call `timer.restart_round()`, zeroing elapsed time for the current round without changing the round type or position in the work/break cycle.
+点击重置轮次项应当调用 `timer.restart_round()`，将当前轮次的已用时间归零，不改变轮次类型或在工作/休息循环中的位置。
 
-#### Scenario: Reset Round zeroes elapsed time
+#### 场景：重置轮次将已用时间归零
 
-- **WHEN** the timer is running or paused and the user clicks the reset-round item
-- **THEN** the current round's elapsed time SHALL be zeroed and the timer SHALL return to idle for the same round
+- **当** 计时器运行或暂停中且用户点击重置轮次项
+- **则** 当前轮次的已用时间应当归零，计时器应当在同一轮次返回空闲状态
 
-#### Scenario: Reset Round preserves sequence position
+#### 场景：重置轮次保留序列位置
 
-- **WHEN** the user clicks the reset-round item during round 2 of a work/break cycle
-- **THEN** the round type and work round number SHALL remain unchanged after the reset
+- **当** 用户在工作/休息循环的第 2 轮点击重置轮次项
+- **则** 重置后轮次类型和工作轮次编号应当保持不变

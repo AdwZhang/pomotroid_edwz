@@ -1,173 +1,173 @@
-## ADDED Requirements
+## 新增需求
 
-### Requirement: Log file written to OS-conventional directory
+### 需求：日志文件写入操作系统常规目录
 
-The system SHALL write a persistent log file to the platform's conventional application log directory, resolved via `app.path().app_log_dir()` using the app identifier `com.splode.pomotroid`.
+系统应当将持久化日志文件写入平台的常规应用日志目录，通过 `app.path().app_log_dir()` 使用应用标识符 `com.splode.pomotroid` 解析。
 
-#### Scenario: Log directory on Linux
+#### 场景：Linux 上的日志目录
 
-- **WHEN** Pomotroid runs on Linux
-- **THEN** log files are written under `~/.local/share/com.splode.pomotroid/logs/`
+- **当** Pomotroid 在 Linux 上运行
+- **则** 日志文件写入 `~/.local/share/com.splode.pomotroid/logs/`
 
-#### Scenario: Log directory on macOS
+#### 场景：macOS 上的日志目录
 
-- **WHEN** Pomotroid runs on macOS
-- **THEN** log files are written under `~/Library/Logs/com.splode.pomotroid/`
+- **当** Pomotroid 在 macOS 上运行
+- **则** 日志文件写入 `~/Library/Logs/com.splode.pomotroid/`
 
-#### Scenario: Log directory on Windows
+#### 场景：Windows 上的日志目录
 
-- **WHEN** Pomotroid runs on Windows
-- **THEN** log files are written under `%APPDATA%\com.splode.pomotroid\logs\`
-
----
-
-### Requirement: Log rotation limits disk usage
-
-The system SHALL rotate log files using a 5 MB per-file size limit and SHALL retain at most one archived log file alongside the current file (KeepOne strategy), bounding total log disk usage to approximately 10 MB.
-
-#### Scenario: File rotates at 5 MB
-
-- **WHEN** the active log file reaches 5 MB
-- **THEN** the active file is archived and a new log file is started
-
-#### Scenario: Only one archive retained
-
-- **WHEN** a rotation occurs and an archived log file already exists
-- **THEN** the previous archive is replaced by the newly archived file
+- **当** Pomotroid 在 Windows 上运行
+- **则** 日志文件写入 `%APPDATA%\com.splode.pomotroid\logs\`
 
 ---
 
-### Requirement: Default log level captures errors, warnings, and key lifecycle events
+### 需求：日志轮转限制磁盘使用
 
-The system SHALL default to INFO log level, capturing `error`, `warn`, and `info` messages while suppressing `debug` messages when Verbose Logging is disabled.
+系统应当使用 5 MB 单文件大小限制进行日志轮转，并最多保留一个归档日志文件与当前文件并存（KeepOne 策略），将总日志磁盘使用限制在约 10 MB。
 
-#### Scenario: Error logged at INFO level
+#### 场景：文件在 5 MB 时轮转
 
-- **WHEN** Verbose Logging is disabled and a runtime error occurs
-- **THEN** the error is written to the log file
+- **当** 活跃日志文件达到 5 MB
+- **则** 活跃文件被归档，新的日志文件开始
 
-#### Scenario: Debug suppressed at INFO level
+#### 场景：仅保留一个归档
 
-- **WHEN** Verbose Logging is disabled
-- **THEN** debug-level messages are not written to the log file
-
----
-
-### Requirement: Rust panics captured before process termination
-
-The system SHALL install a custom panic hook that writes the panic information to the log file before the process terminates.
-
-#### Scenario: Panic captured in log
-
-- **WHEN** a Rust panic occurs anywhere in the process
-- **THEN** a log entry at ERROR level containing the panic message and location is written to the log file before termination
+- **当** 轮转发生且已存在一个归档日志文件
+- **则** 前一个归档被新归档的文件替换
 
 ---
 
-### Requirement: Startup metadata logged
+### 需求：默认日志级别捕获错误、警告和关键生命周期事件
 
-The system SHALL log the following information at INFO level on every startup: application version, resolved app data directory path, and successful database open.
+系统默认应当为 INFO 日志级别，捕获 `error`、`warn` 和 `info` 消息，在详细日志禁用时抑制 `debug` 消息。
 
-#### Scenario: Startup info in log
+#### 场景：在 INFO 级别记录错误
 
-- **WHEN** the application starts successfully
-- **THEN** the log contains the app version, data directory path, and a DB open success message
+- **当** 详细日志已禁用且发生运行时错误
+- **则** 错误被写入日志文件
 
-#### Scenario: DB open failure logged
+#### 场景：在 INFO 级别抑制 Debug
 
-- **WHEN** the database cannot be opened
-- **THEN** the failure is logged at ERROR level before the process exits
-
----
-
-### Requirement: All Rust error paths instrumented
-
-The system SHALL replace all existing `eprintln!` calls with `log::` macro calls at the appropriate level. Every code path that can produce a `Result::Err` or an unrecoverable condition SHALL emit a log entry.
-
-#### Scenario: Audio failure logged
-
-- **WHEN** the audio output stream cannot be opened
-- **THEN** a WARN-level entry is written (audio is non-fatal)
-
-#### Scenario: WebSocket bind failure logged
-
-- **WHEN** the WebSocket server fails to bind to its configured port
-- **THEN** an ERROR-level entry is written including the address and error detail
-
-#### Scenario: Shortcut registration failure logged
-
-- **WHEN** a global shortcut cannot be registered
-- **THEN** a WARN-level entry is written with the key string and error detail
-
-#### Scenario: Tray build failure logged
-
-- **WHEN** the system tray icon cannot be built
-- **THEN** a WARN-level entry is written with the error detail
-
-#### Scenario: Theme watcher failure logged
-
-- **WHEN** the file system watcher for custom themes cannot be created or fails
-- **THEN** a WARN-level entry is written
-
-#### Scenario: Notification failure logged
-
-- **WHEN** a desktop notification cannot be sent
-- **THEN** a WARN-level entry is written
-
-#### Scenario: Timer session record failure logged
-
-- **WHEN** writing a completed session to the database fails
-- **THEN** an ERROR-level entry is written
+- **当** 详细日志已禁用
+- **则** debug 级别消息不写入日志文件
 
 ---
 
-### Requirement: Major successful operations logged at INFO
+### 需求：Rust panic 在进程终止前被捕获
 
-The system SHALL emit INFO-level log entries for major lifecycle operations that succeed, including: database open, WebSocket server successfully bound, timer round completion, and settings save.
+系统应当安装自定义 panic hook，在进程终止前将 panic 信息写入日志文件。
 
-#### Scenario: WebSocket server bind logged
+#### 场景：Panic 在日志中被捕获
 
-- **WHEN** the WebSocket server successfully binds to a port
-- **THEN** an INFO-level entry records the bound address
-
-#### Scenario: Timer round completion logged
-
-- **WHEN** a work or break round completes naturally or is skipped
-- **THEN** an INFO-level entry records the round type and completion reason
+- **当** 进程中任何位置发生 Rust panic
+- **则** 在终止前写入一条 ERROR 级别的日志条目，包含 panic 消息和位置
 
 ---
 
-### Requirement: JS-side events logged to the same file
+### 需求：启动元数据被记录
 
-The system SHALL use `@tauri-apps/plugin-log` in both Svelte windows to forward frontend log calls to the same log file. JS logging SHALL apply the same level discipline as Rust: errors on failure paths, info on successful major operations.
+系统应当在每次启动时以 INFO 级别记录以下信息：应用版本、解析的应用数据目录路径和数据库成功打开。
 
-#### Scenario: Frontend IPC error logged
+#### 场景：日志中的启动信息
 
-- **WHEN** an IPC call from a Svelte window fails
-- **THEN** an error-level entry is written to the log file from the frontend context
+- **当** 应用成功启动
+- **则** 日志包含应用版本、数据目录路径和数据库打开成功消息
 
-#### Scenario: Frontend initialization logged
+#### 场景：数据库打开失败被记录
 
-- **WHEN** a Svelte window completes its startup sequence (settings loaded, theme applied)
-- **THEN** an info-level entry is written confirming successful initialization
-
-#### Scenario: Locale change logged
-
-- **WHEN** the active locale is changed
-- **THEN** an info-level entry records the new locale value
+- **当** 数据库无法打开
+- **则** 在进程退出前以 ERROR 级别记录失败
 
 ---
 
-### Requirement: Open Log Folder accessible from Settings → About
+### 需求：所有 Rust 错误路径已插桩
 
-The system SHALL provide a button in Settings → About that opens the log directory in the OS file manager.
+系统应当将所有现有的 `eprintln!` 调用替换为适当级别的 `log::` 宏调用。每个可能产生 `Result::Err` 或不可恢复条件的代码路径都应当发出日志条目。
 
-#### Scenario: Open Log Folder button opens file manager
+#### 场景：音频失败被记录
 
-- **WHEN** the user clicks "Open Log Folder" in Settings → About
-- **THEN** the OS file manager opens at the log directory
+- **当** 音频输出流无法打开
+- **则** 写入一条 WARN 级别条目（音频非致命）
 
-#### Scenario: Log path displayed
+#### 场景：WebSocket 绑定失败被记录
 
-- **WHEN** the user views Settings → About
-- **THEN** the resolved log directory path is displayed as text alongside the button
+- **当** WebSocket 服务器无法绑定到配置的端口
+- **则** 写入一条 ERROR 级别条目，包含地址和错误详情
+
+#### 场景：快捷键注册失败被记录
+
+- **当** 全局快捷键无法注册
+- **则** 写入一条 WARN 级别条目，包含键字符串和错误详情
+
+#### 场景：托盘构建失败被记录
+
+- **当** 系统托盘图标无法构建
+- **则** 写入一条 WARN 级别条目，包含错误详情
+
+#### 场景：主题监视器失败被记录
+
+- **当** 自定义主题的文件系统监视器无法创建或失败
+- **则** 写入一条 WARN 级别条目
+
+#### 场景：通知失败被记录
+
+- **当** 桌面通知无法发送
+- **则** 写入一条 WARN 级别条目
+
+#### 场景：计时器会话记录失败被记录
+
+- **当** 向数据库写入完成的会话失败
+- **则** 写入一条 ERROR 级别条目
+
+---
+
+### 需求：主要成功操作以 INFO 级别记录
+
+系统应当为成功的主要生命周期操作发出 INFO 级别日志条目，包括：数据库打开、WebSocket 服务器成功绑定、计时器轮次完成和设置保存。
+
+#### 场景：WebSocket 服务器绑定被记录
+
+- **当** WebSocket 服务器成功绑定到端口
+- **则** 一条 INFO 级别条目记录绑定的地址
+
+#### 场景：计时器轮次完成被记录
+
+- **当** 工作或休息轮次自然完成或被跳过
+- **则** 一条 INFO 级别条目记录轮次类型和完成原因
+
+---
+
+### 需求：JS 端事件记录到同一文件
+
+系统应当在两个 Svelte 窗口中使用 `@tauri-apps/plugin-log` 将前端日志调用转发到同一日志文件。JS 日志应当应用与 Rust 相同的级别纪律：失败路径用 error，成功的主要操作用 info。
+
+#### 场景：前端 IPC 错误被记录
+
+- **当** 来自 Svelte 窗口的 IPC 调用失败
+- **则** 从前端上下文写入一条 error 级别条目到日志文件
+
+#### 场景：前端初始化被记录
+
+- **当** Svelte 窗口完成其启动序列（设置已加载、主题已应用）
+- **则** 写入一条 info 级别条目确认成功初始化
+
+#### 场景：语言变更被记录
+
+- **当** 活跃语言被更改
+- **则** 一条 info 级别条目记录新的语言值
+
+---
+
+### 需求：从设置 → 关于可访问打开日志文件夹
+
+系统应当在设置 → 关于中提供一个按钮，在操作系统文件管理器中打开日志目录。
+
+#### 场景：打开日志文件夹按钮打开文件管理器
+
+- **当** 用户点击设置 → 关于中的"打开日志文件夹"
+- **则** 操作系统文件管理器在日志目录打开
+
+#### 场景：日志路径已显示
+
+- **当** 用户查看设置 → 关于
+- **则** 解析的日志目录路径作为文本显示在按钮旁边
