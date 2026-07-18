@@ -56,3 +56,4 @@ context: |
   - CSS: semantic variables (--color-background, --color-foreground, --color-accent, etc.) for all theme-sensitive colors
   - Overlays/borders: color-mix(in oklch, var(--color-foreground) N%, transparent) pattern
   - Tauri capabilities in src-tauri/capabilities/default.json — both windows share this file
+  - 文档、代码注释、commit message 统一使用中文

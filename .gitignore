@@ -1,4 +1,5 @@
 .claude/
+.codemaker/
 .DS_Store
 node_modules/
 npm-debug.log
@@ -8,5 +9,6 @@ thumbs.db
 *.pem
 *.key
 *.cert
+*.obsidian/
 .svelte-kit/
 build/
