@@ -65,6 +65,10 @@ pub struct Settings {
     pub window_width: Option<u32>,
     /// Last known window height (physical pixels). `None` = use OS default.
     pub window_height: Option<u32>,
+    /// Whether the task notes input is visible on the timer.
+    pub task_notes_enabled: bool,
+    /// The current task note text (persists until manually changed).
+    pub current_task_note: String,
 }
 
 impl Default for Settings {
@@ -124,6 +128,8 @@ impl Default for Settings {
             window_y: None,
             window_width: None,
             window_height: None,
+            task_notes_enabled: false,
+            current_task_note: String::new(),
         }
     }
 }
@@ -249,6 +255,8 @@ pub fn load(conn: &Connection) -> Result<Settings> {
         window_y: parse_opt_i32(&map, "window_y"),
         window_width: parse_opt_u32(&map, "window_width"),
         window_height: parse_opt_u32(&map, "window_height"),
+        task_notes_enabled: parse_bool(&map, "task_notes_enabled", d.task_notes_enabled),
+        current_task_note: map.get("current_task_note").cloned().unwrap_or(d.current_task_note),
     })
 }
 
@@ -427,7 +435,7 @@ mod tests {
         // Simulate a pre-migration DB: schema version 1, `*_mins` keys present.
         let conn = Connection::open_in_memory().unwrap();
         // Run only migration 1 manually to get v1 state.
-        conn.execute_batch("BEGIN; CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL); INSERT INTO schema_version VALUES (1); COMMIT;").unwrap();
+        conn.execute_batch("BEGIN; CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, started_at INTEGER NOT NULL, ended_at INTEGER, round_type TEXT NOT NULL, duration_secs INTEGER NOT NULL, completed INTEGER NOT NULL DEFAULT 0); INSERT INTO schema_version VALUES (1); COMMIT;").unwrap();
         conn.execute("INSERT INTO settings (key, value) VALUES ('time_work_mins', '30')", []).unwrap();
         conn.execute("INSERT INTO settings (key, value) VALUES ('time_short_break_mins', '7')", []).unwrap();
         conn.execute("INSERT INTO settings (key, value) VALUES ('time_long_break_mins', '20')", []).unwrap();

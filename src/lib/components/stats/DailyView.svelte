@@ -21,6 +21,11 @@
     return `${Math.round(rate * 100)}%`;
   }
 
+  function fmtHourMin(ts: number): string {
+    const d = new Date(ts * 1000);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  }
+
   const byHour = $derived(today?.by_hour ?? Array(24).fill(0));
   const maxHour = $derived(Math.max(1, ...byHour));
   const hasData = $derived(today !== null && today.rounds > 0);
@@ -94,6 +99,27 @@
       </svg>
     </div>
   </div>
+
+  <!-- Session list with task notes -->
+  {#if today?.sessions && today.sessions.length > 0}
+    <div class="section session-list-section">
+      <div class="section-header">
+        <span class="section-title">{m.stats_session_list()}</span>
+      </div>
+      <div class="session-list">
+        {#each today.sessions as session}
+          <div class="session-row">
+            <span class="session-time">
+              {fmtHourMin(session.started_at)}{session.ended_at ? ` – ${fmtHourMin(session.ended_at)}` : ''}
+            </span>
+            <span class="session-note" class:no-note={!session.task_note}>
+              {session.task_note || m.stats_no_description()}
+            </span>
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -235,5 +261,47 @@
   .baseline {
     stroke: var(--color-separator);
     stroke-width: 1;
+  }
+
+  /* ── Session list ────────────────────────────────────────── */
+  .session-list-section {
+    border-top: 1px solid var(--color-separator);
+    flex: none;
+    max-height: 180px;
+  }
+
+  .session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+  }
+
+  .session-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  .session-time {
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-foreground-darker);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .session-note {
+    font-size: 0.78rem;
+    color: var(--color-foreground);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .session-note.no-note {
+    color: color-mix(in oklch, var(--color-foreground-darker) 50%, transparent);
+    font-style: italic;
   }
 </style>

@@ -28,10 +28,11 @@ pub fn complete_session(
     conn: &Connection,
     session_id: i64,
     completed: bool,
+    task_note: Option<&str>,
 ) -> Result<()> {
     conn.execute(
-        "UPDATE sessions SET ended_at = ?1, completed = ?2 WHERE id = ?3",
-        params![unix_now(), completed as i64, session_id],
+        "UPDATE sessions SET ended_at = ?1, completed = ?2, task_note = ?3 WHERE id = ?4",
+        params![unix_now(), completed as i64, task_note, session_id],
     )?;
     log::debug!("[db] session ended: id={session_id} completed={completed}");
     Ok(())
@@ -88,6 +89,17 @@ pub struct DailyStats {
     pub completion_rate: Option<f32>,
     /// Completed work rounds per hour of the day (index 0 = midnight).
     pub by_hour: Vec<u32>,
+    /// Today's work sessions with optional task notes.
+    pub sessions: Vec<SessionEntry>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SessionEntry {
+    pub started_at: i64,
+    pub ended_at: Option<i64>,
+    pub duration_secs: u32,
+    pub completed: bool,
+    pub task_note: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -159,11 +171,33 @@ pub fn get_daily_stats(conn: &Connection) -> Result<DailyStats> {
         }
     }
 
+    // Fetch today's work sessions with task notes.
+    let mut sess_stmt = conn.prepare(
+        "SELECT started_at, ended_at, duration_secs, completed, task_note
+         FROM sessions
+         WHERE round_type = 'work'
+         AND date(started_at, 'unixepoch', 'localtime') = ?1
+         ORDER BY started_at",
+    )?;
+    let sessions: Vec<SessionEntry> = sess_stmt
+        .query_map([&today], |r| {
+            Ok(SessionEntry {
+                started_at: r.get(0)?,
+                ended_at: r.get(1)?,
+                duration_secs: r.get(2)?,
+                completed: r.get::<_, i64>(3)? != 0,
+                task_note: r.get(4)?,
+            })
+        })?
+        .filter_map(|r| r.ok())
+        .collect();
+
     Ok(DailyStats {
         rounds: completed as u32,
         focus_mins: ((focus_secs + 30) / 60) as u32,
         completion_rate: if total > 0 { Some(completed as f32 / total as f32) } else { None },
         by_hour,
+        sessions,
     })
 }
 
@@ -229,7 +263,7 @@ pub fn get_streak(conn: &Connection) -> Result<StreakInfo> {
 // ---------------------------------------------------------------------------
 
 /// Convert a "YYYY-MM-DD" string to a day number for arithmetic comparison.
-/// Uses the proleptic Gregorian calendar; absolute value is arbitrary — only
+/// Uses the proleptic Gregorian calendar; absolute value is arbitrary -- only
 /// differences between dates matter.
 fn date_to_day_num(s: &str) -> Option<i32> {
     let mut parts = s.splitn(3, '-');
@@ -252,7 +286,7 @@ pub fn compute_streak(days: &[String], today: &str) -> StreakInfo {
         None => return StreakInfo { current: 0, longest: 0 },
     };
 
-    // Current streak — alive if most recent session day is today or yesterday.
+    // Current streak -- alive if most recent session day is today or yesterday.
     let last = *nums.last().unwrap();
     let current = if last == today_n || last == today_n - 1 {
         let mut count = 0u32;
@@ -313,7 +347,7 @@ mod tests {
         let id = insert_session(&conn, "work", 1500).unwrap();
         assert!(id > 0);
 
-        complete_session(&conn, id, true).unwrap();
+        complete_session(&conn, id, true, Some("test task")).unwrap();
 
         let completed: i64 = conn
             .query_row(
@@ -351,7 +385,7 @@ mod tests {
 
     #[test]
     fn compute_streak_active_until_midnight() {
-        // Yesterday had sessions, today does not — streak still live.
+        // Yesterday had sessions, today does not -- streak still live.
         let days = vec!["2024-03-13".to_string(), "2024-03-14".to_string()];
         let info = compute_streak(&days, "2024-03-15");
         assert_eq!(info.current, 2);
@@ -359,7 +393,7 @@ mod tests {
 
     #[test]
     fn compute_streak_broken() {
-        // Last session was 2 days ago — streak is broken.
+        // Last session was 2 days ago -- streak is broken.
         let days = vec!["2024-03-12".to_string(), "2024-03-13".to_string()];
         let info = compute_streak(&days, "2024-03-15");
         assert_eq!(info.current, 0);
@@ -404,23 +438,23 @@ mod tests {
     fn focus_mins_rounds_to_nearest_minute() {
         let conn = setup();
 
-        // 339 s = 5:39 → rounds up to 6 min (remainder 39 ≥ 30).
+        // 339 s = 5:39 -- rounds up to 6 min (remainder 39 -- 30).
         let id1 = insert_session(&conn, "work", 339).unwrap();
-        complete_session(&conn, id1, true).unwrap();
+        complete_session(&conn, id1, true, None).unwrap();
         let stats = get_daily_stats(&conn).unwrap();
         assert_eq!(stats.focus_mins, 6, "339 s should round to 6 min");
 
-        // Reset and test round-down: 324 s = 5:24 → rounds down to 5 min (remainder 24 < 30).
+        // Reset and test round-down: 324 s = 5:24 -- rounds down to 5 min (remainder 24 < 30).
         let conn2 = setup();
         let id2 = insert_session(&conn2, "work", 324).unwrap();
-        complete_session(&conn2, id2, true).unwrap();
+        complete_session(&conn2, id2, true, None).unwrap();
         let stats2 = get_daily_stats(&conn2).unwrap();
         assert_eq!(stats2.focus_mins, 5, "324 s should round to 5 min");
 
-        // Exact minute boundary: 1500 s = 25:00 → stays 25 min.
+        // Exact minute boundary: 1500 s = 25:00 -- stays 25 min.
         let conn3 = setup();
         let id3 = insert_session(&conn3, "work", 1500).unwrap();
-        complete_session(&conn3, id3, true).unwrap();
+        complete_session(&conn3, id3, true, None).unwrap();
         let stats3 = get_daily_stats(&conn3).unwrap();
         assert_eq!(stats3.focus_mins, 25, "1500 s should be exactly 25 min");
     }
@@ -430,10 +464,10 @@ mod tests {
         let conn = setup();
 
         let id1 = insert_session(&conn, "work", 1500).unwrap();
-        complete_session(&conn, id1, true).unwrap();
+        complete_session(&conn, id1, true, None).unwrap();
 
         let id2 = insert_session(&conn, "work", 1500).unwrap();
-        complete_session(&conn, id2, false).unwrap(); // skipped
+        complete_session(&conn, id2, false, None).unwrap(); // skipped
 
         let _id3 = insert_session(&conn, "short-break", 300).unwrap();
 

@@ -56,6 +56,8 @@ export interface Settings {
   local_shortcut_volume_up: string;
   local_shortcut_mute: string;
   local_shortcut_fullscreen: string;
+  task_notes_enabled: boolean;
+  current_task_note: string;
 }
 
 /** Returned by `check_update` — describes an available update. */
@@ -88,6 +90,15 @@ export interface DailyStats {
   focus_mins: number;
   completion_rate: number | null; // null when no sessions started today
   by_hour: number[]; // 24 entries, index = hour of day
+  sessions: SessionEntry[]; // today's work sessions with notes
+}
+
+export interface SessionEntry {
+  started_at: number; // unix timestamp
+  ended_at: number | null;
+  duration_secs: number;
+  completed: boolean;
+  task_note: string | null;
 }
 
 export interface DayStat {

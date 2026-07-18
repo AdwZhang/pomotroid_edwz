@@ -310,7 +310,15 @@ fn listen_events(
                 // --- Session recording: mark the completed round ---
                 if let Some(session_id) = current_session_id.take() {
                     if let Ok(conn) = db.lock() {
-                        let _ = queries::complete_session(&conn, session_id, !was_skipped);
+                        // For work rounds, snapshot the current task note.
+                        let task_note = if completed_round == "work" {
+                            let s = settings.lock().unwrap();
+                            let note = s.current_task_note.trim().to_string();
+                            if note.is_empty() { None } else { Some(note) }
+                        } else {
+                            None
+                        };
+                        let _ = queries::complete_session(&conn, session_id, !was_skipped, task_note.as_deref());
                     }
                 }
 

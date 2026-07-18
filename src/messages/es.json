@@ -149,5 +149,11 @@
   "tooltip_dial_countdown": "Cuando está activado, el arco de progreso cuenta regresivamente hasta cero en lugar de llenarse.",
   "tooltip_auto_start_work": "Iniciar automáticamente la siguiente ronda de trabajo cuando termina un descanso.",
   "tooltip_auto_start_break": "Iniciar automáticamente el descanso cuando termina una ronda de trabajo.",
-  "tooltip_websocket": "Activa un servidor WebSocket local para integraciones externas como overlays de streaming. Desactivado por defecto."
+  "tooltip_websocket": "Activa un servidor WebSocket local para integraciones externas como overlays de streaming. Desactivado por defecto.",
+  "timer_toggle_task_notes": "Notas de Tarea",
+  "timer_toggle_task_notes_desc": "Mostrar un campo de texto para describir en qué estás trabajando durante las rondas de enfoque.",
+  "task_note_placeholder": "¿En qué estás trabajando?",
+  "stats_session_list": "Sesiones",
+  "stats_no_description": "Sin descripción",
+  "tooltip_mini_mode": "Cambiar a modo mini"
 }

@@ -149,5 +149,11 @@
   "tooltip_dial_countdown": "Lorsqu'activé, l'arc de progression compte à rebours vers zéro au lieu de se remplir.",
   "tooltip_auto_start_work": "Démarrer automatiquement la prochaine session de travail lorsqu'une pause se termine.",
   "tooltip_auto_start_break": "Démarrer automatiquement la pause lorsqu'une session de travail se termine.",
-  "tooltip_websocket": "Active un serveur WebSocket local pour les intégrations externes telles que les overlays de streaming. Désactivé par défaut."
+  "tooltip_websocket": "Active un serveur WebSocket local pour les intégrations externes telles que les overlays de streaming. Désactivé par défaut.",
+  "timer_toggle_task_notes": "Notes de Tâche",
+  "timer_toggle_task_notes_desc": "Afficher un champ texte pour décrire ce sur quoi vous travaillez pendant les sessions de concentration.",
+  "task_note_placeholder": "Sur quoi travaillez-vous ?",
+  "stats_session_list": "Sessions",
+  "stats_no_description": "Aucune description",
+  "tooltip_mini_mode": "Passer en mode mini"
 }

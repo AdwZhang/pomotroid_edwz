@@ -149,5 +149,11 @@
   "tooltip_dial_countdown": "启用后，进度弧从满倒计时至零，而非从零填充。",
   "tooltip_auto_start_work": "休息结束后自动开始下一个工作轮次。",
   "tooltip_auto_start_break": "工作轮次结束后自动开始休息。",
-  "tooltip_websocket": "启用本地 WebSocket 服务器，用于直播覆盖层等外部集成。默认禁用。"
+  "tooltip_websocket": "启用本地 WebSocket 服务器，用于直播覆盖层等外部集成。默认禁用。",
+  "timer_toggle_task_notes": "任务备注",
+  "timer_toggle_task_notes_desc": "在专注轮次中显示文本输入框，记录当前正在做什么。",
+  "task_note_placeholder": "正在做什么...",
+  "stats_session_list": "会话记录",
+  "stats_no_description": "无描述",
+  "tooltip_mini_mode": "切换到迷你模式"
 }

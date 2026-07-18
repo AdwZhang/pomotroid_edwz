@@ -149,5 +149,11 @@
   "tooltip_dial_countdown": "Etkinleştirildiğinde, ilerleme yayı dolmak yerine sıfıra doğru geri sayar.",
   "tooltip_auto_start_work": "Bir mola bittiğinde sonraki çalışma turunu otomatik olarak başlat.",
   "tooltip_auto_start_break": "Bir çalışma turu tamamlandığında molayı otomatik olarak başlat.",
-  "tooltip_websocket": "Yayın yerleşimleri gibi harici entegrasyonlar için yerel bir WebSocket sunucusu etkinleştirir. Varsayılan olarak devre dışıdır."
+  "tooltip_websocket": "Yayın yerleşimleri gibi harici entegrasyonlar için yerel bir WebSocket sunucusu etkinleştirir. Varsayılan olarak devre dışıdır.",
+  "timer_toggle_task_notes": "Görev Notları",
+  "timer_toggle_task_notes_desc": "Odaklanma turları sırasında ne üzerinde çalıştığınızı açıklayan bir metin alanı gösterin.",
+  "task_note_placeholder": "Ne üzerinde çalışıyorsunuz?",
+  "stats_session_list": "Oturumlar",
+  "stats_no_description": "Açıklama yok",
+  "tooltip_mini_mode": "Mini moda geç"
 }

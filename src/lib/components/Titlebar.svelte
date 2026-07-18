@@ -7,6 +7,13 @@
   import Tooltip from './Tooltip.svelte';
   import * as m from '$paraglide/messages.js';
 
+  interface Props {
+    /** 点击切换到 mini 模式 */
+    onSwitchToMini?: () => void;
+  }
+
+  let { onSwitchToMini }: Props = $props();
+
   let maximized = $state(false);
   let suppressTitlebarHover = $state(false);
 
@@ -178,18 +185,33 @@
   </Tooltip>
 {/snippet}
 
+{#snippet miniBtn()}
+  <Tooltip text={m.tooltip_mini_mode()}>
+    <button class="btn-icon" onclick={onSwitchToMini} aria-label="Mini mode">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <!-- 缩小到胶囊条图标 -->
+        <rect x="1" y="6" width="14" height="5" rx="2.5" stroke="currentColor" stroke-width="1.3" />
+        <circle cx="4.5" cy="8.5" r="1.2" fill="currentColor" />
+        <line x1="7" y1="8.5" x2="13" y2="8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+      </svg>
+    </button>
+  </Tooltip>
+{/snippet}
+
 <nav class="titlebar" class:suppress-hover={suppressTitlebarHover} data-tauri-drag-region>
   <!-- Left: settings + stats buttons on Linux/Windows. On macOS the traffic
        lights live here; the action buttons move to the right side instead. -->
   {#if !isMac}
     {@render settingsBtn()}
     {@render statsBtn()}
+    {@render miniBtn()}
   {/if}
 
   <!-- Right: settings + stats buttons on macOS, window controls on Linux/Windows. -->
   <div class="controls">
     {#if isMac}
       {@render statsBtn()}
+      {@render miniBtn()}
       {@render settingsBtn()}
     {:else}
       <button class="btn-icon" onclick={minimize} aria-label="Minimize">

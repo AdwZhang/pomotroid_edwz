@@ -149,5 +149,11 @@
   "tooltip_dial_countdown": "Wenn aktiviert, zählt der Fortschrittsbogen auf null herunter, anstatt sich zu füllen.",
   "tooltip_auto_start_work": "Die nächste Arbeitsrunde automatisch starten, wenn eine Pause endet.",
   "tooltip_auto_start_break": "Die Pause automatisch starten, wenn eine Arbeitsrunde endet.",
-  "tooltip_websocket": "Aktiviert einen lokalen WebSocket-Server für externe Integrationen wie Stream-Overlays. Standardmäßig deaktiviert."
+  "tooltip_websocket": "Aktiviert einen lokalen WebSocket-Server für externe Integrationen wie Stream-Overlays. Standardmäßig deaktiviert.",
+  "timer_toggle_task_notes": "Aufgabennotizen",
+  "timer_toggle_task_notes_desc": "Ein Textfeld anzeigen, um zu beschreiben, woran Sie während der Fokusrunden arbeiten.",
+  "task_note_placeholder": "Woran arbeiten Sie?",
+  "stats_session_list": "Sitzungen",
+  "stats_no_description": "Keine Beschreibung",
+  "tooltip_mini_mode": "Mini-Modus aktivieren"
 }

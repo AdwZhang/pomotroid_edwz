@@ -309,6 +309,12 @@
     checked={$settings.dial_countdown}
     onclick={() => toggle('dial_countdown', $settings.dial_countdown)}
   />
+  <SettingsToggle
+    label={m.timer_toggle_task_notes()}
+    description={m.timer_toggle_task_notes_desc()}
+    checked={$settings.task_notes_enabled}
+    onclick={() => toggle('task_notes_enabled', $settings.task_notes_enabled)}
+  />
 </div>
 
 <style>
